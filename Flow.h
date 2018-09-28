@@ -7,10 +7,12 @@ class Flow {
 
     private:
         vector<double> grid;
-        vector<vector<double>,3> q;
+        vector<vector<double> > q;
+        vector<vector<double> > f;
         // 3x2 array, with rho, u, and e on the rows and left/right boundaries
         // on the columns
         array<array<double,2>,3> boundary_conditions;
+        double gamma;
         int n_cells;
         double dt;
         double time;
@@ -21,12 +23,9 @@ class Flow {
     public:
         Flow();
         void initialize();
+        vector<vector<double> > calculate_f_vector(vector<vector<double> >&, int, double);
         void solve();
-        void iterateExplicit(vector<double>&, double&, double, double, double);
-        void iterateImplicit(vector<double>&, double&, double, double, double);
-        vector<double> solveLinearSystem(vector<vector<double>>&, vector<double>&);
-        vector<double> multiplyMatrices(vector<vector<double>>&, vector<double>&);
-        vector<double> subtractMatrices(vector<double>&, vector<double>&);
+        void iterate(vector<vector<double> >&, double&, double&, double&, double&, int&);
         void write();
         void output();
 
