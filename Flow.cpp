@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <array>
 #include <iostream>
 #include <fstream>
@@ -6,39 +7,42 @@
 using std::array;
 using std::cout;
 using std::endl;
+using std::max_element;
+using std::min_element;
 using std::ofstream;
 using std::vector;
 
 Flow::Flow() {
-
     // Generate parameters and boundary conditions
     // TODO: Add inputfile so that inputs are not hard-coded
-    this->n_cells = 4;
-    this->dt = .005;
+    this->n_cells = 100;
+    this->cfl = .1;
     this->time = 0;
-    this->n_iter = 1000;
-    this->length = 10;
+    this->n_iter = 2000;
+    this->length = 1;
     // Left boundary
-    this->boundary_conditions.at(0).at(0) = 1.225;    // rho
-    this->boundary_conditions.at(1).at(0) = 0;       // rho u
-    this->boundary_conditions.at(2).at(0) = 300.000;   // rho e
+    this->boundary_conditions.at(0).at(0) = 1;    // rho
+    this->boundary_conditions.at(1).at(0) = 1;    // rho u
+    this->boundary_conditions.at(2).at(0) = 120;  // rho e
     // Right boundary
-    this->boundary_conditions.at(0).at(1) = 1.225;    // rho
-    this->boundary_conditions.at(1).at(1) = 0;       // rho u
-    this->boundary_conditions.at(2).at(1) = 215.400;   // rho e
+    this->boundary_conditions.at(0).at(1) = 1;    // rho
+    this->boundary_conditions.at(1).at(1) = 1;    // rho u
+    this->boundary_conditions.at(2).at(1) = 100;  // rho e
     this->gamma = 1.4;
-
 }
 
 
 void Flow::initialize() {
-
-    // Allocate grid, q, f, and p vectors
+    // Allocate grid, q, q_vertex, f, and p vectors
     this->grid.resize(this->n_cells);
     this->q.resize(3);
     this->q[0].resize(this->n_cells);
     this->q[1].resize(this->n_cells);
     this->q[2].resize(this->n_cells);
+    this->q_vertex.resize(3);
+    this->q_vertex[0].resize(this->n_cells-1);
+    this->q_vertex[1].resize(this->n_cells-1);
+    this->q_vertex[2].resize(this->n_cells-1);
     this->f.resize(3);
     this->f[0].resize(this->n_cells);
     this->f[1].resize(this->n_cells);
@@ -49,9 +53,7 @@ void Flow::initialize() {
     for (int i=0; i<this->n_cells; i++) {
         this->grid.at(i) = (this->length*i)/(n_cells-2) - (this->length/2)/(n_cells-2);
     }
-    for (int i = 0; i < this->grid.size(); i++) {
-        cout << grid[i] << "    ";
-    }
+
     // Calculate spacing
     this->s = this->length/(this->n_cells-2);
 
@@ -60,9 +62,9 @@ void Flow::initialize() {
 
     // Constant
     for (int i = 1; i<(this->n_cells)-1; i++) {
-        this->q.at(0).at(i) = 1.225;
-        this->q.at(1).at(i) = 0;
-        this->q.at(2).at(i) = 215.400;
+        this->q.at(0).at(i) = 1;
+        this->q.at(1).at(i) = 1;
+        this->q.at(2).at(i) = 100;
     }
 
     // Square wave
@@ -90,6 +92,15 @@ void Flow::initialize() {
     this->q.at(1).at(this->n_cells-1) = this->boundary_conditions.at(1).at(1);
     this->q.at(2).at(this->n_cells-1) = this->boundary_conditions.at(2).at(1);
 
+    // Calculate cell wall Q's (average neighbor cells)
+    for (int i=0; i<this->q_vertex[0].size(); i++) {
+        q_vertex.at(0).at(i) = (q.at(0).at(i) + q.at(0).at(i+1))/2;
+        q_vertex.at(1).at(i) = (q.at(1).at(i) + q.at(1).at(i+1))/2;
+        q_vertex.at(2).at(i) = (q.at(2).at(i) + q.at(2).at(i+1))/2;
+    }
+
+    // Calculate timestep
+    this->calculate_dt(this->q, this->gamma, this->cfl, this->s);
 }
 
 vector<vector<double> > Flow::calculate_f_vector(vector<vector<double> >& q, int n_cells, double gamma) {
@@ -98,9 +109,9 @@ vector<vector<double> > Flow::calculate_f_vector(vector<vector<double> >& q, int
     // Initialize F vector
     vector<vector<double> > f;
     f.resize(3);
-    f[0].resize(n_cells);
-    f[1].resize(n_cells);
-    f[2].resize(n_cells);
+    f[0].resize(q[0].size());
+    f[1].resize(q[0].size());
+    f[2].resize(q[0].size());
 
     // Calculate values
     for (int i=0; i<q[0].size(); i++) {
@@ -108,19 +119,17 @@ vector<vector<double> > Flow::calculate_f_vector(vector<vector<double> >& q, int
         f.at(1).at(i) = q.at(1).at(i)*q.at(1).at(i)/q.at(0).at(i) + (gamma - 1)*(q.at(2).at(i) - q.at(1).at(i)*q.at(1).at(i)/(2*q.at(0).at(i)));
         f.at(2).at(i) = q.at(1).at(i)*q.at(2).at(i)/q.at(0).at(i) + (gamma - 1)*(q.at(1).at(i)/q.at(0).at(i))*(q.at(2).at(i) - q.at(1).at(i)*q.at(1).at(i)/(2*q.at(0).at(i)));
     }
-    cout << f[0][1] << "    " << f[1][1] << "    " << f[2][1] << endl;
+
     this->f = f;
     return f;
-
 }
 
-vector<double> Flow::calculate_pressure(vector<vector<double> >& q, int n_cells, double gamma) {
-
+vector<double> Flow::calculate_pressure(vector<vector<double> >& q, double gamma) {
     // Calculate pressure from a given Q vector
 
     // Initialize pressure vector
     vector<double> p;
-    p.resize(n_cells);
+    p.resize(q[0].size());
 
     // Calculate values
     for (int i=0; i<q[0].size(); i++) {
@@ -128,11 +137,42 @@ vector<double> Flow::calculate_pressure(vector<vector<double> >& q, int n_cells,
     }
 
     return p;
+}
 
+vector<double> Flow::calculate_u(vector<vector<double> >& q, double gamma) {
+    // Calculate u (x-velocity) from a given Q vector
+
+    // Initialize u vector
+    vector<double> u;
+    u.resize(q[0].size());
+
+    // Calculate values
+    for (int i=0; i<q[0].size(); i++) {
+        u[i] = q.at(1).at(i) / q.at(0).at(i);
+    }
+
+    return u;
+}
+
+double Flow::calculate_dt(vector<vector<double> >& q, double gamma, double cfl, double s) {
+    // Calculate u
+    vector<double> u = this->calculate_u(q, gamma);
+
+    // Calculate initial time step
+    double max_u = *max_element(u.begin(),u.end());
+    double min_u = *min_element(u.begin(),u.end());
+    double max_magnitude_u;
+    if (max_u + min_u >= 0) {
+        max_magnitude_u = max_u;
+    } else {
+        max_magnitude_u = -min_u;
+    }
+    double dt = cfl*s/max_magnitude_u;
+    cout << "Timestep: " << dt << " s." << endl;
+    return dt;
 }
 
 void Flow::solve() {
-
     // Wipe old solution file
     remove("solution.dat");
 
@@ -147,32 +187,41 @@ void Flow::solve() {
     // Iterate until n_iter is reached
     for (int i=1; i<=this->n_iter; i++) {
         cout << "----- Iteration " << i << ", t = " << this->time << " s. " << endl;
-        this->iterate(this->q, this->time, this->gamma, this->dt, this->s, this->n_cells);
+        this->iterate(this->q, this->q_vertex, this->time, this->gamma, this->dt, this->s, this->n_cells);
         this->write();
     }
-
 }
 
-void Flow::iterate(vector<vector<double> >& q, double& time, double& gamma, double& dt, double& s, int& n_cells) {
-
+void Flow::iterate(vector<vector<double> >& q, vector<vector<double> >& q_vector, double& time, double& gamma, double& cfl, double& s, int& n_cells) {
     // Copy q from current timestep into q_old array
     vector<vector<double> > q_old(q);
 
     // Find old f array
-    vector<vector<double> > f_old = this->calculate_f_vector(q, n_cells, gamma);
+    vector<vector<double> > f_old = this->calculate_f_vector(q_vertex, n_cells, gamma);
 
+    // Calculate timestep
+    dt = this->calculate_dt(this->q, this->gamma, this->cfl, this->s);
+
+    cout << "F1: " << f_old.at(0).at(1) << endl;
     // Advance every grid point forward one timestep
     for (int i=1; i<(n_cells-1); i++) {
-        q.at(0).at(i) = q_old.at(0).at(i) - (dt/(2*s))*(f_old.at(0).at(i+1) - f_old.at(0).at(i-1));
-        q.at(1).at(i) = q_old.at(1).at(i) - (dt/(2*s))*(f_old.at(1).at(i+1) - f_old.at(1).at(i-1));
-        q.at(2).at(i) = q_old.at(2).at(i) - (dt/(2*s))*(f_old.at(2).at(i+1) - f_old.at(2).at(i-1));
+        q.at(0).at(i) = q_old.at(0).at(i) - (dt/(s))*(f_old.at(0).at(i) - f_old.at(0).at(i-1));
+        q.at(1).at(i) = q_old.at(1).at(i) - (dt/(s))*(f_old.at(1).at(i) - f_old.at(1).at(i-1));
+        q.at(2).at(i) = q_old.at(2).at(i) - (dt/(s))*(f_old.at(2).at(i) - f_old.at(2).at(i-1));
+    }
+
+    // Update vertex grid
+    // TODO: Make this (as well as initialization) into a function
+    for (int i=0; i<this->q_vertex[0].size(); i++) {
+        q_vertex.at(0).at(i) = (q.at(0).at(i) + q.at(0).at(i+1))/2;
+        q_vertex.at(1).at(i) = (q.at(1).at(i) + q.at(1).at(i+1))/2;
+        q_vertex.at(2).at(i) = (q.at(2).at(i) + q.at(2).at(i+1))/2;
     }
 
     // Find pressure distribution
-    this->p = this->calculate_pressure(q, n_cells, gamma);
+    this->p = this->calculate_pressure(q, gamma);
 
     time = time + dt;
-
 }
 
 void Flow::write() {
@@ -185,22 +234,18 @@ void Flow::write() {
     for (int i = 0; i<this->n_cells; i++) {
         solution_file << this->grid[i] << " "
             << this->q.at(0).at(i) << " " << this->q.at(1).at(i) << " " << this->q.at(2).at(i) << " "
-            << this->f.at(0).at(i) << " " << this->f.at(1).at(i) << " " << this->f.at(2).at(i) << " "
             << this->p.at(i) << endl;
+            //<< this->f.at(0).at(i) << " " << this->f.at(1).at(i) << " " << this->f.at(2).at(i) << " "
     }
     solution_file << endl;
-
 }
 
 void Flow::output() {
-
     // Output results to stdout
-    // TODO: Formatted output for a Python plotting script or Tecplot
     cout << "Final t = " << this->time << " s." << endl;
     cout << "Solution:" << endl;
     for (int i = 0; i < this->q[0].size(); i++) {
         cout << this->q.at(0).at(i) << ", " << this->q.at(1).at(i) << ", " << this->q.at(2).at(i) << "    ";
     }
     cout << endl;
-
 }
