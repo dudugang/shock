@@ -193,12 +193,21 @@ void Flow::solve() {
     }
 }
 
-void Flow::iterate(vector<vector<double> >& q, vector<vector<double> >& q_vector, double& time, double& gamma, double& cfl, double& s, int& n_cells) {
+
+// // // // //
+// This function runs one iteration of the flow solver. This involves
+// calculating wall fluxes by solving the Riemann problem, calculating the
+// timestep given the CFL, and advancing the solution forward to the next
+// timestep.
+void Flow::iterate(
+        vector<vector<double> >& q, vector<vector<double> >& q_vector,
+        double& time, double& gamma, double& cfl, double& s, int& n_cells) {
+
     // Copy q from current timestep into q_old array
     vector<vector<double> > q_old(q);
 
     // Write this function
-    // f_old = this->calculate_reimann_fluxes
+    // f_old = this->calculate_riemann_fluxes
 
     // Find old f array
     vector<vector<double> > f_old = this->calculate_f_vector(q_vertex, n_cells, gamma);
@@ -229,10 +238,37 @@ void Flow::iterate(vector<vector<double> >& q, vector<vector<double> >& q_vector
 }
 
 // // // // //
+// This function calculates p_star, which is the pressure on either side of the
+// contact surface when solving the general Riemann problem. The equations for
+// this are given in Knight, and the solution is done using Newton's Method.
+double Flow::calculate_pstar(
+        double p1, double p4, double u1, double u4, double a1, double a4,
+        double gamma) {
+
+    // TODO: Make a smarter initial guess (Knight gives a good one)
+    double pstar = p1;
+    // TODO: Have iteration stop by an error tolerance as opposed to a
+    // hardcoded number of iterations
+    int newton_iters = 20;
+
+    double function;
+    double function_prime;
+    for (int i = 0; i < newton_iters; i++) {
+        function = a1*f_pstar(pstar, p1, gamma) + a4*f_pstar(pstar, p4, gamma) - u1 + u4;
+        function_prime = a1*f_prime_pstar(pstar, p1, gamma) + a4*f_prime_pstar(pstar, p4, gamma);
+        pstar = pstar - function/function_prime;
+    }
+
+    return pstar;
+}
+
+// // // // //
 // This function calculates the function f(p_star, p) defined in Knight, page 33,
 // eq. 2.99. This is used in the calculation of p_star when solving the general
 // Reimann problem at every cell interface.
-double Flow::f_pstar(double ps, double p, double gamma) {
+double Flow::f_pstar(
+        double ps, double p, double gamma) {
+
     if (ps >= p) {
         return ( (ps/p - 1)/(gamma*pow((gamma - 1)/(2*gamma) + (ps*(gamma + 1))/(2*gamma*p), 1/2)) );
     } else {
@@ -245,6 +281,7 @@ double Flow::f_pstar(double ps, double p, double gamma) {
 // in Knight, page 33, eq. 2.99. This is used in the calculation of p_star for
 // iterations of Newton's method.
 double Flow::f_prime_pstar(double ps, double p, double gamma) {
+
     if (ps >= p) {
         return ( (pow(2, 1/2)*(ps - p + 3*gamma*p + gamma*ps))/(2*pow(gamma, 2)*pow(p, 2)*pow((- p + ps + gamma*p + gamma*ps)/(gamma*p), 3/2)) );
     } else {
