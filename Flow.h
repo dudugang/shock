@@ -31,6 +31,8 @@ class Flow {
         double calculate_dt(vector<vector<double> >&, double, double, double);
         void solve();
         void iterate(vector<vector<double> >&, vector<vector<double> >&, double&, double&, double&, double&, int&);
+        double f_pstar(double, double, double);
+        double f_prime_pstar(double, double, double);
         void write();
         void output();
 };

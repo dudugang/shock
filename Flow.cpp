@@ -1,7 +1,8 @@
 #include <algorithm>
 #include <array>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <math.h>
 #include <vector>
 #include "Flow.h"
 using std::array;
@@ -196,6 +197,9 @@ void Flow::iterate(vector<vector<double> >& q, vector<vector<double> >& q_vector
     // Copy q from current timestep into q_old array
     vector<vector<double> > q_old(q);
 
+    // Write this function
+    // f_old = this->calculate_reimann_fluxes
+
     // Find old f array
     vector<vector<double> > f_old = this->calculate_f_vector(q_vertex, n_cells, gamma);
 
@@ -222,6 +226,30 @@ void Flow::iterate(vector<vector<double> >& q, vector<vector<double> >& q_vector
     this->p = this->calculate_pressure(q, gamma);
 
     time = time + dt;
+}
+
+// // // // //
+// This function calculates the function f(p_star, p) defined in Knight, page 33,
+// eq. 2.99. This is used in the calculation of p_star when solving the general
+// Reimann problem at every cell interface.
+double Flow::f_pstar(double ps, double p, double gamma) {
+    if (ps >= p) {
+        return ( (ps/p - 1)/(gamma*pow((gamma - 1)/(2*gamma) + (ps*(gamma + 1))/(2*gamma*p), 1/2)) );
+    } else {
+        return ( (2*(pow((ps/p), (gamma - 1)/(2*gamma)) - 1))/(gamma - 1) );
+    }
+}
+
+// // // // //
+// This function calculates the derivative of the function f(p_star, p) defined
+// in Knight, page 33, eq. 2.99. This is used in the calculation of p_star for
+// iterations of Newton's method.
+double Flow::f_prime_pstar(double ps, double p, double gamma) {
+    if (ps >= p) {
+        return ( (pow(2, 1/2)*(ps - p + 3*gamma*p + gamma*ps))/(2*pow(gamma, 2)*pow(p, 2)*pow((- p + ps + gamma*p + gamma*ps)/(gamma*p), 3/2)) );
+    } else {
+        return 1/(gamma*p*pow(ps/p, (gamma + 1)/(2*gamma)));
+    }
 }
 
 void Flow::write() {
