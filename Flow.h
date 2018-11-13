@@ -33,6 +33,7 @@ class Flow {
         void iterate(vector<vector<double> >&, vector<vector<double> >&, double&, double&, double&, double&, int&);
         vector<double> case_1_riemann(double, double, double, double, double, double, double, double);
         vector<double> case_2_riemann(double, double, double, double, double, double, double, double);
+        vector<double> case_3_riemann(double, double, double, double, double, double, double, double);
         double calculate_pstar(double, double, double, double, double, double, double);
         double f_pstar(double, double, double);
         double f_prime_pstar(double, double, double);
