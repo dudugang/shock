@@ -437,6 +437,84 @@ vector<double> Flow::case_3_riemann(
 }
 
 // // // // //
+// This function calculates the flow variables at the cell interface given by
+// Case 4 of the general Riemann problem, as defined by Knight. First, the
+// velocities of each characteristic are calculated. This information is then
+// used to pick the correct region of the x-t diagram from which to extract flow
+// information.
+vector<double> Flow::case_4_riemann(
+        double p1, double p4, double u1, double u4, double a1, double a4,
+        double gamma, double pstar) {
+
+    // Initialize vector of results, which will contain the desired (rho, u, p)
+    vector<double> results;
+    results.resize(3);
+
+    // Find rho1 and rho4 using a = sqrt(gamma*p/rho)
+    double rho1 = gamma*p1/(pow(a1,2));
+    double rho4 = gamma*p4/(pow(a4,2));
+
+    // Calculate velocity of left and right side of left expansion
+    double c_expansion_left_left = u1 - a1;
+    double c_expansion_left_right = u1 + a1*( -((gamma+1)/(gamma-1))*pow((pstar/p1), (gamma-1)/(2*gamma)) + 2/(gamma-1) );
+
+    // Calculate velocity of left and right side of right expansion
+    double c_expansion_right_left = u4 + a4*( ((gamma+1)/(gamma-1))*pow((pstar/p4), (gamma-1)/(2*gamma)) - 2/(gamma-1) );
+    double c_expansion_right_right = u4 + a4;
+
+    // Calculate contact surface velocity
+    double c_contact_surface = u1 + (2*a1/(gamma-1))*( 1 - pow(pstar/p1, (gamma-1)/(2*gamma)) );
+
+    // If the leftmost characteristic is going to the right, then the flow
+    // properties at the cell wall are equal to state 1. The opposite is also
+    // true; if the rightmost characteristic is going to the left, then the flow
+    // properties at the cell wall are equal to state 4.
+    if (c_expansion_left_left >= 0) {
+        results[0] = rho1;
+        results[1] = u1;
+        results[2] = p1;
+    } else if (c_expansion_right_right <= 0) {
+        results[0] = rho4;
+        results[1] = u4;
+        results[2] = p4;
+    }
+    // If we've reached this point, then we know that the leftmost
+    // characteristic goes to the left, and the rightmost characteristic goes to
+    // the right. Thus, the desired state lies between. If the contact surface
+    // goes to the left and the left side of the right expansion goes to the
+    // right, then the wall flow properties are state 3. If the contact surface
+    // goes to the right and the right side of the left expansion goes to the
+    // left, then the wall flow properties are state 2. If the left side of the
+    // left expansion goes to the left and the right side of the left expansion
+    // goes to the right, then the flow properties are those within the left
+    // fan, with x/t = 0. if the left side of the right expansion goes to the
+    // left and the right side of the right expansion goes to the right, then
+    // the flow properties are those within the right fan, with x/t = 0. The
+    // following equations are defined in Knight.
+      else if ((c_contact_surface <= 0) && (c_expansion_right_left >= 0)) {
+        results[0] = rho4*pow(pstar/p4, 1/gamma);
+        results[1] = c_contact_surface;
+        results[2] = pstar;
+    } else if ((c_contact_surface >= 0) && (c_expansion_left_right <= 0)) {
+        results[0] = rho1*pow(pstar/p1, 1/gamma);
+        results[1] = c_contact_surface;
+        results[2] = pstar;
+    } else if ((c_expansion_left_left <= 0) && (c_expansion_left_right >= 0)) {
+        results[1] = (2/(gamma+1))*( ((gamma-1)/2)*u1 + a1 );
+        results[2] = p1*pow( ((gamma-1)/(gamma+1))*(1/a1)*(u1) + 2/(gamma+1), (2*gamma)/(gamma-1) );
+        results[0] = rho1*pow(results[2]/p1, 1/gamma);
+    } else if ((c_expansion_right_left <= 0) && (c_expansion_right_right >= 0)) {
+        results[1] = (2/(gamma+1))*( ((gamma-1)/2)*u4 - a4 );
+        results[2] = p4*pow( ((gamma-1)/(gamma+1))*(1/a4)*(-u4) + 2/(gamma+1), (2*gamma)/(gamma-1) );
+        results[0] = rho4*pow(results[2]/p4, 1/gamma);
+    } else {
+        cout << "Case 4 of Reimann problem failed to solve." << endl;
+    }
+
+    return results;
+}
+
+// // // // //
 // This function calculates p_star, which is the pressure on either side of the
 // contact surface when solving the general Riemann problem. The equations for
 // this are given in Knight, and the solution is done using Newton's Method.
