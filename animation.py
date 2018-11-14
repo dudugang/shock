@@ -31,7 +31,7 @@ fig, ax = plt.subplots()
 line, = ax.plot(data[:,0,0], data[:,4,0], color='k', marker='o')
 plt.xlabel('x (m.)')
 plt.ylabel('p (Pa)')
-print(times)
+
 # Define what happens at every frame in animation
 def update(n, data, line):
     line.set_data(data[:,0,n], data[:,4,n])
