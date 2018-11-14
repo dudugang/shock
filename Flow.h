@@ -25,12 +25,13 @@ class Flow {
     public:
         Flow();
         void initialize();
-        vector<vector<double> > calculate_f_vector(vector<vector<double> >&, int, double);
+        vector<double> calculate_f_vector(vector<double>&, double);
         vector<double> calculate_pressure(vector<vector<double> >&, double);
         vector<double> calculate_u(vector<vector<double> >&, double);
         double calculate_dt(vector<vector<double> >&, double, double, double);
         void solve();
-        void iterate(vector<vector<double> >&, vector<vector<double> >&, double&, double&, double&, double&, int&);
+        void iterate(vector<vector<double> >&, vector<vector<double> >&, vector<vector<double> >&, double&, double&, double&, double&, int&);
+        vector<double> solve_riemann_problem(double, double, double, double, double, double, double, double);
         vector<double> case_1_riemann(double, double, double, double, double, double, double, double);
         vector<double> case_2_riemann(double, double, double, double, double, double, double, double);
         vector<double> case_3_riemann(double, double, double, double, double, double, double, double);

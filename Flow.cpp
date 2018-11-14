@@ -41,13 +41,13 @@ void Flow::initialize() {
     this->q[1].resize(this->n_cells);
     this->q[2].resize(this->n_cells);
     this->q_vertex.resize(3);
-    this->q_vertex[0].resize(this->n_cells-1);
-    this->q_vertex[1].resize(this->n_cells-1);
-    this->q_vertex[2].resize(this->n_cells-1);
+    this->q_vertex[0].resize(this->n_cells+1);
+    this->q_vertex[1].resize(this->n_cells+1);
+    this->q_vertex[2].resize(this->n_cells+1);
     this->f.resize(3);
-    this->f[0].resize(this->n_cells);
-    this->f[1].resize(this->n_cells);
-    this->f[2].resize(this->n_cells);
+    this->f[0].resize(this->n_cells+1);
+    this->f[1].resize(this->n_cells+1);
+    this->f[2].resize(this->n_cells+1);
     this->p.resize(this->n_cells);
 
     // Generate grid
@@ -86,12 +86,12 @@ void Flow::initialize() {
     //}
 
     // Add boundary conditions
-    this->q.at(0).at(0) = this->boundary_conditions.at(0).at(0);
-    this->q.at(1).at(0) = this->boundary_conditions.at(1).at(0);
-    this->q.at(2).at(0) = this->boundary_conditions.at(2).at(0);
-    this->q.at(0).at(this->n_cells-1) = this->boundary_conditions.at(0).at(1);
-    this->q.at(1).at(this->n_cells-1) = this->boundary_conditions.at(1).at(1);
-    this->q.at(2).at(this->n_cells-1) = this->boundary_conditions.at(2).at(1);
+    this->q_vertex.at(0).at(0) = this->boundary_conditions.at(0).at(0);
+    this->q_vertex.at(1).at(0) = this->boundary_conditions.at(1).at(0);
+    this->q_vertex.at(2).at(0) = this->boundary_conditions.at(2).at(0);
+    this->q_vertex.at(0).at(this->n_cells) = this->boundary_conditions.at(0).at(1);
+    this->q_vertex.at(1).at(this->n_cells) = this->boundary_conditions.at(1).at(1);
+    this->q_vertex.at(2).at(this->n_cells) = this->boundary_conditions.at(2).at(1);
 
     // Calculate cell wall Q's (average neighbor cells)
     for (int i=0; i<this->q_vertex[0].size(); i++) {
@@ -104,24 +104,20 @@ void Flow::initialize() {
     this->calculate_dt(this->q, this->gamma, this->cfl, this->s);
 }
 
-vector<vector<double> > Flow::calculate_f_vector(vector<vector<double> >& q, int n_cells, double gamma) {
-    // Calculate F vector from a given Q vector
+// // // // //
+// This function takes a Q vector (rho, rho*u, rho*e) and converts it into an F
+// vector, as defined by Knight (eq. 2.5)
+vector<double> Flow::calculate_f_vector(vector<double>& q, double gamma) {
 
     // Initialize F vector
-    vector<vector<double> > f;
+    vector<double> f;
     f.resize(3);
-    f[0].resize(q[0].size());
-    f[1].resize(q[0].size());
-    f[2].resize(q[0].size());
 
     // Calculate values
-    for (int i=0; i<q[0].size(); i++) {
-        f.at(0).at(i) = q.at(1).at(i);
-        f.at(1).at(i) = q.at(1).at(i)*q.at(1).at(i)/q.at(0).at(i) + (gamma - 1)*(q.at(2).at(i) - q.at(1).at(i)*q.at(1).at(i)/(2*q.at(0).at(i)));
-        f.at(2).at(i) = q.at(1).at(i)*q.at(2).at(i)/q.at(0).at(i) + (gamma - 1)*(q.at(1).at(i)/q.at(0).at(i))*(q.at(2).at(i) - q.at(1).at(i)*q.at(1).at(i)/(2*q.at(0).at(i)));
-    }
+    f[0] = q[1];
+    f[1] = q[1]*q[1]/q[0] + (gamma - 1)*(q[2] - q[1]*q[1]/(2*q[0]));
+    f[2] = q[1]*q[2]/q[0] + (gamma - 1)*(q[1]/q[0])*(q[2] - q[1]*q[1]/(2*q[0]));
 
-    this->f = f;
     return f;
 }
 
@@ -188,7 +184,7 @@ void Flow::solve() {
     // Iterate until n_iter is reached
     for (int i=1; i<=this->n_iter; i++) {
         cout << "----- Iteration " << i << ", t = " << this->time << " s. " << endl;
-        this->iterate(this->q, this->q_vertex, this->time, this->gamma, this->dt, this->s, this->n_cells);
+        this->iterate(this->q, this->q_vertex, this->f, this->time, this->gamma, this->dt, this->s, this->n_cells);
         this->write();
     }
 }
@@ -200,41 +196,89 @@ void Flow::solve() {
 // timestep given the CFL, and advancing the solution forward to the next
 // timestep.
 void Flow::iterate(
-        vector<vector<double> >& q, vector<vector<double> >& q_vector,
-        double& time, double& gamma, double& cfl, double& s, int& n_cells) {
+        vector<vector<double> >& q, vector<vector<double> >& q_vertex,
+        vector<vector<double> >& f, double& time, double& gamma, double& cfl,
+        double& s, int& n_cells) {
 
-    // Copy q from current timestep into q_old array
-    vector<vector<double> > q_old(q);
+    // Update q_vertex by solving the Reimann problem at every cell interface
+    for (int i = 1; i < (n_cells); i++) {
+        // This is eq. 2.4 from Knight
+        double p1 = (gamma-1)*( q.at(2).at(i) - pow(q.at(1).at(i), 2)/(2*q.at(0).at(i)) );
+        double p4 = (gamma-1)*( q.at(2).at(i+1) - pow(q.at(1).at(i+1), 2)/(2*q.at(0).at(i+1)) );
+        // This is because q = (rho, rho*u, rho*e)
+        double u1 = q.at(1).at(i) / q.at(0).at(i);
+        double u4 = q.at(1).at(i+1) / q.at(0).at(i+1);
+        // This comes from a = sqrt(gamma*p/rho)
+        double a1 = pow(gamma*p1/q.at(0).at(i), .5);
+        double a4 = pow(gamma*p4/q.at(0).at(i+1), .5);
 
-    // Write this function
-    // f_old = this->calculate_riemann_fluxes
+        // Calculate pstar for the Riemann problem
+        double pstar = this->calculate_pstar(
+                p1, p4, u1, u4, a1, a4, gamma);
+        // Use this ptar to solve the Riemann problem
+        vector<double> rho_u_p = this->solve_riemann_problem(
+                p1, p4, u1, u4, a1, a4, gamma, pstar);
 
-    // Find old f array
-    vector<vector<double> > f_old = this->calculate_f_vector(q_vertex, n_cells, gamma);
+        // Convert rho, u, p to Q vertex values
+        q_vertex.at(0).at(i) = rho_u_p[0];
+        q_vertex.at(1).at(i) = rho_u_p[0] * rho_u_p[1];
+        q_vertex.at(2).at(i) = rho_u_p[2] / (gamma-1);
+    }
+
+    // Find current f array
+    for (int i = 0; i < (n_cells + 1); i++) {
+        vector<double> q_interface;
+        vector<double> f_interface;
+        q_interface[0] = q_vertex.at(0).at(i);
+        q_interface[1] = q_vertex.at(1).at(i);
+        q_interface[2] = q_vertex.at(2).at(i);
+        f_interface = this->calculate_f_vector(q_interface, gamma);
+        f.at(0).at(i) = f_interface[0];
+        f.at(1).at(i) = f_interface[1];
+        f.at(2).at(i) = f_interface[2];
+    }
 
     // Calculate timestep
     dt = this->calculate_dt(this->q, this->gamma, this->cfl, this->s);
 
-    cout << "F1: " << f_old.at(0).at(1) << endl;
     // Advance every grid point forward one timestep
-    for (int i=1; i<(n_cells-1); i++) {
-        q.at(0).at(i) = q_old.at(0).at(i) - (dt/(s))*(f_old.at(0).at(i) - f_old.at(0).at(i-1));
-        q.at(1).at(i) = q_old.at(1).at(i) - (dt/(s))*(f_old.at(1).at(i) - f_old.at(1).at(i-1));
-        q.at(2).at(i) = q_old.at(2).at(i) - (dt/(s))*(f_old.at(2).at(i) - f_old.at(2).at(i-1));
-    }
-
-    // Update vertex grid
-    // TODO: Make this (as well as initialization) into a function
-    for (int i=0; i<this->q_vertex[0].size(); i++) {
-        q_vertex.at(0).at(i) = (q.at(0).at(i) + q.at(0).at(i+1))/2;
-        q_vertex.at(1).at(i) = (q.at(1).at(i) + q.at(1).at(i+1))/2;
-        q_vertex.at(2).at(i) = (q.at(2).at(i) + q.at(2).at(i+1))/2;
+    for (int i = 0; i < n_cells; i++) {
+        q.at(0).at(i) = q.at(0).at(i) - (dt/(s))*(f.at(0).at(i+1) - f.at(0).at(i));
+        q.at(1).at(i) = q.at(1).at(i) - (dt/(s))*(f.at(1).at(i+1) - f.at(1).at(i));
+        q.at(2).at(i) = q.at(2).at(i) - (dt/(s))*(f.at(2).at(i+1) - f.at(2).at(i));
     }
 
     // Find pressure distribution
     this->p = this->calculate_pressure(q, gamma);
 
     time = time + dt;
+}
+
+// // // // //
+// This function solves the General Riemann Problem, as defined by Knight in
+// chapter 2.9. The individual cases are written in seperate functions, so this
+// function just picks which case to run given the inputs.
+vector<double> Flow::solve_riemann_problem(
+        double p1, double p4, double u1, double u4, double a1, double a4,
+        double gamma, double pstar) {
+
+    // Initialize vector of results
+    vector<double> results;
+
+    // The following conditionals are defined by Knight in chapter 2.9
+    if ((p1 < pstar) && (p4 < pstar)) {
+        results = this->case_1_riemann(p1, p4, u1, u4, a1, a4, gamma, pstar);
+    } else if ((p1 < pstar) && (p4 > pstar)) {
+        results = this->case_2_riemann(p1, p4, u1, u4, a1, a4, gamma, pstar);
+    } else if ((p1 > pstar) && (p4 < pstar)) {
+        results = this->case_3_riemann(p1, p4, u1, u4, a1, a4, gamma, pstar);
+    } else if ((p1 > pstar) && (p4 > pstar)) {
+        results = this->case_4_riemann(p1, p4, u1, u4, a1, a4, gamma, pstar);
+    } else {
+        cout << "Riemann problem failed to solve." << endl;
+    }
+
+    return results;
 }
 
 // // // // //
