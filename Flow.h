@@ -16,6 +16,7 @@ class Flow {
         double gamma;
         int n_cells;
         double cfl;
+        double max_dt;
         double dt;
         double time;
         int n_iter;

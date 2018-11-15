@@ -27,7 +27,7 @@ for n in range(0,n_times):
         data[i,:,n] = numbers[0:5]
 
 # Create figure
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(figsize=(15,7))
 line, = ax.plot(data[:,0,0], data[:,4,0], color='k', marker='o')
 plt.xlabel('x (m.)')
 plt.ylabel('p (Pa)')

@@ -16,18 +16,19 @@ using std::vector;
 Flow::Flow() {
     // Generate parameters and boundary conditions
     // TODO: Add inputfile so that inputs are not hard-coded
-    this->n_cells = 500;
+    this->n_cells = 200;
     this->cfl = .2;
+    this->max_dt = .0005;
     this->time = 0;
-    this->n_iter = 1000;
+    this->n_iter = 5000;
     this->length = 1;
     // Left boundary
     this->boundary_conditions.at(0).at(0) = 1;    // rho
-    this->boundary_conditions.at(1).at(0) = 1;    // rho u
+    this->boundary_conditions.at(1).at(0) = 0;    // rho u
     this->boundary_conditions.at(2).at(0) = 100;  // rho e
     // Right boundary
     this->boundary_conditions.at(0).at(1) = 1;    // rho
-    this->boundary_conditions.at(1).at(1) = 1;    // rho u
+    this->boundary_conditions.at(1).at(1) = 0;    // rho u
     this->boundary_conditions.at(2).at(1) = 100;  // rho e
     this->gamma = 1.4;
 }
@@ -52,7 +53,7 @@ void Flow::initialize() {
 
     // Generate grid
     for (int i=0; i<this->n_cells; i++) {
-        this->grid.at(i) = (this->length*i)/(n_cells-2) - (this->length/2)/(n_cells-2);
+        this->grid.at(i) = (this->length*i)/(n_cells) + (this->length/2)/(n_cells);
     }
 
     // Calculate spacing
@@ -71,12 +72,12 @@ void Flow::initialize() {
     // Shock
     for (int i = 0; i < this->n_cells/2; i++) {
         this->q.at(0).at(i) = 1;
-        this->q.at(1).at(i) = 1;
+        this->q.at(1).at(i) = 0;
         this->q.at(2).at(i) = 150;
     }
     for (int i = this->n_cells/2; i < this->n_cells; i++) {
         this->q.at(0).at(i) = 1;
-        this->q.at(1).at(i) = 1;
+        this->q.at(1).at(i) = 0;
         this->q.at(2).at(i) = 100;
     }
 
@@ -170,6 +171,10 @@ double Flow::calculate_dt(vector<vector<double> >& q, double gamma, double cfl, 
         max_magnitude_u = -min_u;
     }
     double dt = cfl*s/max_magnitude_u;
+    cout << dt << endl;
+    if (dt > max_dt) {
+        dt = max_dt;
+    }
     cout << "Timestep: " << dt << " s." << endl;
     return dt;
 }
@@ -230,13 +235,14 @@ void Flow::iterate(
         q_vertex.at(1).at(i) = rho_u_p[0] * rho_u_p[1];
         q_vertex.at(2).at(i) = rho_u_p[2] / (gamma-1);
     }
+
     // TEMPORARY: Reflective boundary
-    q_vertex.at(0).at(0) = q_vertex.at(0).at(1);
-    q_vertex.at(1).at(0) = q_vertex.at(1).at(1);
-    q_vertex.at(2).at(0) = q_vertex.at(2).at(1);
-    q_vertex.at(0).at(n_cells) = q_vertex.at(0).at(n_cells-1);
-    q_vertex.at(1).at(n_cells) = q_vertex.at(1).at(n_cells-1);
-    q_vertex.at(2).at(n_cells) = q_vertex.at(2).at(n_cells-1);
+    q_vertex.at(0).at(0) =  q_vertex.at(0).at(1);
+    q_vertex.at(1).at(0) = -q_vertex.at(1).at(1);
+    q_vertex.at(2).at(0) =  q_vertex.at(2).at(1);
+    q_vertex.at(0).at(n_cells) =  q_vertex.at(0).at(n_cells-1);
+    q_vertex.at(1).at(n_cells) = -q_vertex.at(1).at(n_cells-1);
+    q_vertex.at(2).at(n_cells) =  q_vertex.at(2).at(n_cells-1);
 
     // Find current f array
     for (int i = 0; i < (n_cells + 1); i++) {
