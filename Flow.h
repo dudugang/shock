@@ -9,11 +9,11 @@ class Flow {
         vector<vector<double> > q;
         vector<vector<double> > q_vertex;
         vector<vector<double> > f;
-        vector<double> p;
         // 3x2 array, with rho, u, and e on the rows and left/right boundaries
         // on the columns
         array<array<double,2>,3> boundary_conditions;
         double gamma;
+        double r_gas;
         int n_cells;
         double cfl;
         double max_dt;
@@ -29,6 +29,7 @@ class Flow {
         vector<double> calculate_f_vector(vector<double>&, double);
         vector<double> calculate_pressure(vector<vector<double> >&, double);
         vector<double> calculate_u(vector<vector<double> >&, double);
+        vector<double> calculate_temperature(vector<vector<double> >&, double, double);
         double calculate_dt(vector<vector<double> >&, double, double, double);
         void solve();
         void iterate(vector<vector<double> >&, vector<vector<double> >&, vector<vector<double> >&, double&, double&, double&, double&, int&);

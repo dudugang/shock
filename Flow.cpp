@@ -20,8 +20,10 @@ Flow::Flow() {
     this->cfl = .2;
     this->max_dt = .0005;
     this->time = 0;
-    this->n_iter = 5000;
+    this->n_iter = 500;
     this->length = 1;
+
+    // TODO: Fix this. Add ghost cells instead, this gives undefined behavior.
     // Left boundary
     this->boundary_conditions.at(0).at(0) = 1;    // rho
     this->boundary_conditions.at(1).at(0) = 0;    // rho u
@@ -30,7 +32,10 @@ Flow::Flow() {
     this->boundary_conditions.at(0).at(1) = 1;    // rho
     this->boundary_conditions.at(1).at(1) = 0;    // rho u
     this->boundary_conditions.at(2).at(1) = 100;  // rho e
+
+    // Chemistry
     this->gamma = 1.4;
+    this->r_gas = 287;
 }
 
 
@@ -49,7 +54,6 @@ void Flow::initialize() {
     this->f[0].resize(this->n_cells+1);
     this->f[1].resize(this->n_cells+1);
     this->f[2].resize(this->n_cells+1);
-    this->p.resize(this->n_cells);
 
     // Generate grid
     for (int i=0; i<this->n_cells; i++) {
@@ -155,6 +159,21 @@ vector<double> Flow::calculate_u(vector<vector<double> >& q, double gamma) {
     }
 
     return u;
+}
+
+vector<double> Flow::calculate_temperature(vector<vector<double> >& q, double gamma, double r_gas) {
+    // Calculate temperature from a given Q vector
+
+    // Initialize temperature vector
+    vector<double> temperature;
+    temperature.resize(q[0].size());
+
+    // Calculate values
+    for (int i=0; i<q[0].size(); i++) {
+        temperature[i] = ((gamma-1)/r_gas) * (q.at(2).at(i)/q.at(0).at(i));
+    }
+
+    return temperature;
 }
 
 double Flow::calculate_dt(vector<vector<double> >& q, double gamma, double cfl, double s) {
@@ -268,9 +287,6 @@ void Flow::iterate(
         q.at(1).at(i) = q.at(1).at(i) - (dt/(s))*(f.at(1).at(i+1) - f.at(1).at(i));
         q.at(2).at(i) = q.at(2).at(i) - (dt/(s))*(f.at(2).at(i+1) - f.at(2).at(i));
     }
-
-    // Find pressure distribution
-    this->p = this->calculate_pressure(q, gamma);
 
     time = time + dt;
 }
@@ -590,18 +606,27 @@ double Flow::calculate_pstar(
         double p1, double p4, double u1, double u4, double a1, double a4,
         double gamma) {
 
-    // TODO: Make a smarter initial guess (Knight gives a good one)
-    double pstar = p1;
+    // Initial guess for Newton's Method. This problem is very sensitive to bad
+    // initial conditions, so a smart one is necesssary, otherwise nonphysical
+    // fluxes become common and the results become unstable. This initial guess
+    // comes from Knight, page 33.
+    double pstar = pow( ((a1+a4) + ((gamma-1)/2)*(u1-u4)) / (a1*pow(p1, -(gamma-1)/(2*gamma)) + a4*pow(p4, -(gamma-1)/(2*gamma))), (2*gamma)/(gamma-1) );
     // TODO: Have iteration stop by an error tolerance as opposed to a
     // hardcoded number of iterations
-    int newton_iters = 20;
+    int max_newton_iters = 100;
+    double error_tolerance = 1e-8;
 
     double function;
     double function_prime;
-    for (int i = 0; i < newton_iters; i++) {
+    double pstar_old;
+    for (int i = 0; i < max_newton_iters; i++) {
         function = a1*f_pstar(pstar, p1, gamma) + a4*f_pstar(pstar, p4, gamma) - u1 + u4;
         function_prime = a1*f_prime_pstar(pstar, p1, gamma) + a4*f_prime_pstar(pstar, p4, gamma);
+        pstar_old = pstar;
         pstar = pstar - function/function_prime;
+        if (std::abs((pstar-pstar_old)/pstar) < error_tolerance) {
+            break;
+        }
     }
 
     return pstar;
@@ -636,16 +661,23 @@ double Flow::f_prime_pstar(double ps, double p, double gamma) {
 
 void Flow::write() {
 
-    // Write data to solution.dat
+    // Find pressure distribution
+    vector<double> p = this->calculate_pressure(this->q, this->gamma);
 
+    // Find u distribution
+    vector<double> u = this->calculate_u(this->q, this->gamma);
+
+    // Find temperature distribution
+    vector<double> temperature = this->calculate_temperature(this->q, this->gamma, this->r_gas);
+
+    // Write data to solution.dat
     ofstream solution_file;
     solution_file.open("solution.dat", std::ios_base::app);
     solution_file << this->time << endl;
     for (int i = 0; i<this->n_cells; i++) {
         solution_file << this->grid[i] << " "
             << this->q.at(0).at(i) << " " << this->q.at(1).at(i) << " " << this->q.at(2).at(i) << " "
-            << this->p.at(i) << endl;
-            //<< this->f.at(0).at(i) << " " << this->f.at(1).at(i) << " " << this->f.at(2).at(i) << " "
+            << p[i] << " " << u[i] << " " << temperature[i] << endl;
     }
     solution_file << endl;
 }
