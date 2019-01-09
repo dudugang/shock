@@ -1,9 +1,9 @@
-#include <vector>
-using std::vector;
+#include <Eigen/Dense>
+using namespace Eigen;
 
 class Algebra {
     public:
-        vector<vector<double> > return_positive(vector<vector<double> >);
-        vector<vector<double> > return_negative(vector<vector<double> >);
+        static MatrixXd return_positive(MatrixXd);
+        static MatrixXd return_negative(MatrixXd);
 };
 
