@@ -25,10 +25,7 @@ class Flow {
     public:
         Flow();
         void initialize();
-        vector<double> calculate_pressure(vector<vector<double> >&, double);
-        vector<double> calculate_u(vector<vector<double> >&, double);
-        vector<double> calculate_temperature(vector<vector<double> >&, double, double);
-        double calculate_dt(vector<vector<double> >&, double, double, double);
+        //double calculate_dt(vector<vector<double> >&, double, double, double);
         void solve();
         void iterate(vector<VectorXd>&, double&, double, double, double, int);
         void write();

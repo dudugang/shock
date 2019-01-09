@@ -5,6 +5,7 @@
 #include <math.h>
 #include <vector>
 #include "Flow.h"
+#include "Flux.h"
 using namespace Eigen;
 using std::cout;
 using std::endl;
@@ -16,18 +17,18 @@ using std::vector;
 Flow::Flow() {
     // Generate parameters and boundary conditions
     // TODO: Add inputfile so that inputs are not hard-coded
-    this->n_equations = 3;
-    this->n_cells = 200;
-    this->n_ghosts = 2;
-    this->cfl = .2;
-    this->max_dt = .0005;
-    this->time = 0;
-    this->n_iter = 500;
-    this->length = 1;
+    n_equations = 3;
+    n_cells = 200;
+    n_ghosts = 2;
+    cfl = .2;
+    dt = 1e-4;
+    time = 0;
+    n_iter = 500;
+    length = 1;
 
     // Chemistry
-    this->gamma = 1.4;
-    this->r_gas = 287;
+    gamma = 1.4;
+    r_gas = 287;
 }
 
 
@@ -45,7 +46,7 @@ void Flow::initialize() {
 
     // Generate grid
     for (int i=0; i<n_cells; i++) {
-        grid.at(i) = (length*i)/(n_cells) + (length/2)/(n_cells);
+        grid[i] = (length*i)/(n_cells) + (length/2)/(n_cells);
     }
 
     // Calculate spacing
@@ -56,68 +57,23 @@ void Flow::initialize() {
 
     // Shock
     for (int i = 0; i < n_cells/2; i++) {
-        q.at(0).at(i) = 1;
-        q.at(1).at(i) = 0;
-        q.at(2).at(i) = 150;
+        q[i](0) = 1;
+        q[i](1) = 0.01;
+        q[i](2) = 15000;
     }
     for (int i = n_cells/2; i < n_cells; i++) {
-        q.at(0).at(i) = 1;
-        q.at(1).at(i) = 0;
-        q.at(2).at(i) = 100;
+        q[i](0) = 1;
+        q[i](1) = 0.01;
+        q[i](2) = 10000;
     }
 
     // Calculate timestep
-    calculate_dt(q, gamma, cfl, dx);
+    //calculate_dt(q, gamma, cfl, dx);
 }
-
-vector<double> Flow::calculate_pressure(vector<vector<double> >& q, double gamma) {
-    // Calculate pressure from a given Q vector
-
-    // Initialize pressure vector
-    vector<double> p;
-    p.resize(q[0].size());
-
-    // Calculate values
-    for (int i=0; i<q[0].size(); i++) {
-        p[i] = (gamma - 1)*(q.at(2).at(i) - q.at(1).at(i)*q.at(1).at(i)/(2*q.at(0).at(i)));
-    }
-
-    return p;
-}
-
-vector<double> Flow::calculate_u(vector<vector<double> >& q, double gamma) {
-    // Calculate u (x-velocity) from a given Q vector
-
-    // Initialize u vector
-    vector<double> u;
-    u.resize(q[0].size());
-
-    // Calculate values
-    for (int i=0; i<q[0].size(); i++) {
-        u[i] = q.at(1).at(i) / q.at(0).at(i);
-    }
-
-    return u;
-}
-
-vector<double> Flow::calculate_temperature(vector<vector<double> >& q, double gamma, double r_gas) {
-    // Calculate temperature from a given Q vector
-
-    // Initialize temperature vector
-    vector<double> temperature;
-    temperature.resize(q[0].size());
-
-    // Calculate values
-    for (int i=0; i<q[0].size(); i++) {
-        temperature[i] = ((gamma-1)/r_gas) * (q.at(2).at(i)/q.at(0).at(i));
-    }
-
-    return temperature;
-}
-
+/*
 double Flow::calculate_dt(vector<vector<double> >& q, double gamma, double cfl, double dx) {
     // Calculate u
-    vector<double> u = this->calculate_u(q, gamma);
+    vector<double> u = calculate_u(q, gamma);
 
     // Calculate initial time step
     double max_u = *max_element(u.begin(),u.end());
@@ -136,7 +92,7 @@ double Flow::calculate_dt(vector<vector<double> >& q, double gamma, double cfl, 
     cout << "Timestep: " << dt << " s." << endl;
     return dt;
 }
-
+*/
 void Flow::solve() {
     // Wipe old solution file
     remove("solution.dat");
@@ -144,15 +100,15 @@ void Flow::solve() {
     // Write header info
     ofstream solution_file;
     solution_file.open("solution.dat", std::ios_base::app);
-    solution_file << this->n_cells << " " << this->n_iter << endl;
+    solution_file << n_cells << " " << n_iter << endl;
 
     // Write initial conditions
-    this->write();
+    write();
 
     // Iterate until n_iter is reached
     for (int i=1; i<=n_iter; i++) {
         cout << "----- Iteration " << i << ", t = " << time << " s. " << endl;
-        iterate(q, q_vertex, f, time, gamma, dt, dx, n_cells);
+        iterate(q, time, gamma, dt, dx, n_cells);
         write();
     }
 }
@@ -168,7 +124,7 @@ void Flow::iterate(
         double dx, int n_cells) {
 
     // Calculate timestep
-    dt = this->calculate_dt(q, gamma, cfl, dx);
+    //dt = calculate_dt(q, gamma, cfl, dx);
 
     // Calculate fluxes, then advance every non-ghost cell forward by one
     // timestep. Indices only include non-ghost cells.
@@ -193,32 +149,32 @@ void Flow::iterate(
 void Flow::write() {
 
     // Find pressure distribution
-    vector<double> p = this->calculate_pressure(this->q, this->gamma);
+    //vector<double> p = calculate_pressure(q, gamma);
 
     // Find u distribution
-    vector<double> u = this->calculate_u(this->q, this->gamma);
+    //vector<double> u = calculate_u(q, gamma);
 
     // Find temperature distribution
-    vector<double> temperature = this->calculate_temperature(this->q, this->gamma, this->r_gas);
+    //vector<double> temperature = calculate_temperature(q, gamma, r_gas);
 
     // Write data to solution.dat
     ofstream solution_file;
     solution_file.open("solution.dat", std::ios_base::app);
-    solution_file << this->time << endl;
-    for (int i = 0; i<this->n_cells; i++) {
-        solution_file << this->grid[i] << " "
-            << this->q.at(0).at(i) << " " << this->q.at(1).at(i) << " " << this->q.at(2).at(i) << " "
-            << p[i] << " " << u[i] << " " << temperature[i] << endl;
+    solution_file << time << endl;
+    for (int i = 0; i<n_cells; i++) {
+        solution_file << grid[i] << " "
+            << q[i](0) << " " << q[i](1) << " " << q[i](2) << " " << endl;
+            //<< p[i] << " " << u[i] << " " << temperature[i] << endl;
     }
     solution_file << endl;
 }
 
 void Flow::output() {
     // Output results to stdout
-    cout << "Final t = " << this->time << " s." << endl;
+    cout << "Final t = " << time << " s." << endl;
     cout << "Solution:" << endl;
-    for (int i = 0; i < this->q[0].size(); i++) {
-        cout << this->q.at(0).at(i) << ", " << this->q.at(1).at(i) << ", " << this->q.at(2).at(i) << "    ";
+    for (int i = 0; i < q.size(); i++) {
+        cout << q[i](0) << ", " << q[i](1) << ", " << q[i](2) << "    ";
     }
     cout << endl;
 }
