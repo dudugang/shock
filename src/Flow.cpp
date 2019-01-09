@@ -1,11 +1,11 @@
+#include <Flow.h>
+#include <Flux.h>
 #include <algorithm>
 #include <Eigen/Dense>
 #include <fstream>
 #include <iostream>
 #include <math.h>
 #include <vector>
-#include "Flow.h"
-#include "Flux.h"
 using namespace Eigen;
 using std::cout;
 using std::endl;
@@ -18,12 +18,12 @@ Flow::Flow() {
     // Generate parameters and boundary conditions
     // TODO: Add inputfile so that inputs are not hard-coded
     n_equations = 3;
-    n_cells = 200;
+    n_cells = 10;
     n_ghosts = 2;
     cfl = .2;
     dt = 1e-4;
     time = 0;
-    n_iter = 500;
+    n_iter = 1;
     length = 1;
 
     // Chemistry
@@ -108,7 +108,7 @@ void Flow::solve() {
     // Iterate until n_iter is reached
     for (int i=1; i<=n_iter; i++) {
         cout << "----- Iteration " << i << ", t = " << time << " s. " << endl;
-        iterate(q, time, gamma, dt, dx, n_cells);
+        iterate(q, time, gamma, cfl, dx, n_cells);
         write();
     }
 }

@@ -1,4 +1,4 @@
-#include "Flow.h"
+#include <Flow.h>
 
 int main(int argc, char* argv[]) {
     // Make instance of Flow class and initialize inputs
