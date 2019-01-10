@@ -1,42 +1,38 @@
 CXX = g++
 exe = flow
-src = src
-obj = obj
-bin = bin
-build = build
-include_paths = include include/eigen
-include = $(foreach dir, $(include_paths), -I$(dir))
-flags = -O3 -Wall
+src_dir = src
+src = $(wildcard $(src_dir)/*.cpp)
+bin_dir = bin
+build_dir = build
+obj_dir = $(build_dir)/obj
+obj = $(src:$(src_dir)/%.cpp=$(obj_dir)/%.o)
+test_dir = test
+test_obj_dir = $(build_dir)/test
+include_paths = include lib/eigen lib/googletest
+cpp_flags = $(foreach dir, $(include_paths), -I$(dir))
+c_flags = -O3 -Wall
 
 .PHONY: all
-all: directories $(bin)/$(exe)
+all: directories $(bin_dir)/$(exe)
 
 # This is purely for testing purposes
 .PHONY: print
 print:
-	$(info $(include))
+	$(info $(obj))
 
 .PHONY: directories
 directories:
-	if [ ! -d bin ]; then mkdir bin; fi
-	if [ ! -d obj ]; then mkdir obj; fi
+	if [ ! -d $(bin_dir) ]; then mkdir $(bin_dir); fi
+	if [ ! -d $(build_dir) ]; then mkdir $(build_dir); fi
+	if [ ! -d $(obj_dir) ]; then mkdir $(obj_dir); fi
+	if [ ! -d $(test_obj_dir) ]; then mkdir $(test_obj_dir); fi
 
 .PHONY: clean
 clean:
-	rm -f *.o $(obj)/* $(bin)/$(exe)
-	rmdir obj/ bin/
+	rm -rf $(build_dir) $(bin_dir)
 
-$(bin)/$(exe): $(obj)/Algebra.o $(obj)/Flux.o $(obj)/Flow.o $(obj)/main.o
-	$(CXX) $(flags) -o $@ $(include) $(obj)/Algebra.o $(obj)/Flux.o $(obj)/Flow.o $(obj)/main.o
+$(bin_dir)/$(exe): $(obj)
+	$(CXX) -o $@ $^
 
-$(obj)/Algebra.o: $(src)/Algebra.cpp
-	$(CXX) $(flags) -o $@ $(include) -c $<
-
-$(obj)/Flux.o: $(src)/Flux.cpp
-	$(CXX) $(flags) -o $@ $(include) -c $<
-
-$(obj)/Flow.o: $(src)/Flow.cpp
-	$(CXX) $(flags) -o $@ $(include) -c $<
-
-$(obj)/main.o: $(src)/main.cpp
-	$(CXX) $(flags) -o $@ $(include) -c $<
+$(obj_dir)/%.o: $(src_dir)/%.cpp
+	$(CXX) $(cpp_flags) $(c_flags) -o $@ -c $<
