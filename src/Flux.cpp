@@ -1,7 +1,10 @@
 #include <Flux.h>
 #include <Algebra.h>
 #include <Eigen/Dense>
+#include <iostream>
 using namespace Eigen;
+using std::cout;
+using std::endl;
 
 // // // // //
 // This function calculates the flux f_i+1/2 (the flux through the right cell
@@ -86,15 +89,15 @@ Matrix3d Flux::calculate_left_eigenvectors(Vector3d q, double gamma) {
     Matrix3d l_eigvecs;
 
     // Calculate
-    l_eigvecs(0,0) = 1.0/(q(0)*q(0))*((q(1)*q(1))*gamma+q(1)*q(1)-q(0)*q(2)*gamma*2.0)*(1.0/2.0);
-    l_eigvecs(0,1) = -q(1)/q(0);
-    l_eigvecs(0,2) = 1.0;
-    l_eigvecs(1,0) = (1.0/(q(0)*q(0))*((q(1)*q(1))*gamma+q(1)*q(1))*(1.0/2.0))/(gamma-1.0)-(1.0/(q(0)*q(0))*q(1)*(q(1)*2.0+sqrt(2.0)*sqrt(gamma)*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0)))*(1.0/2.0))/(gamma-1.0);
-    l_eigvecs(1,1) = (q(1)+sqrt(2.0)*sqrt(gamma)*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))*(1.0/2.0))/(q(0)*(gamma-1.0))-(q(1)*gamma)/(q(0)*(gamma-1.0));
-    l_eigvecs(1,2) = 1.0;
-    l_eigvecs(2,0) = (1.0/(q(0)*q(0))*((q(1)*q(1))*gamma+q(1)*q(1))*(1.0/2.0))/(gamma-1.0)-(1.0/(q(0)*q(0))*q(1)*(q(1)*2.0-sqrt(2.0)*sqrt(gamma)*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0)))*(1.0/2.0))/(gamma-1.0);
-    l_eigvecs(2,1) = (q(1)-sqrt(2.0)*sqrt(gamma)*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))*(1.0/2.0))/(q(0)*(gamma-1.0))-(q(1)*gamma)/(q(0)*(gamma-1.0));
-    l_eigvecs(2,2) = 1.0;
+    l_eigvecs(0,0) = ((q(1)*q(1))*((q(1)*q(1))*gamma+q(1)*q(1)-q(0)*q(2)*gamma*2.0)*(1.0/2.0))/((q(0)*q(0))*(q(1)*q(1))*gamma-(q(0)*q(0)*q(0))*q(2)*gamma*2.0);
+    l_eigvecs(0,1) = -(q(1)*q(1)*q(1))/(q(0)*(q(1)*q(1))*gamma-(q(0)*q(0))*q(2)*gamma*2.0);
+    l_eigvecs(0,2) = (q(1)*q(1))/((q(1)*q(1))*gamma-q(0)*q(2)*gamma*2.0);
+    l_eigvecs(1,0) = (q(1)*((q(1)*q(1)*q(1)*q(1))*sqrt(gamma)*4.0-(q(1)*q(1)*q(1)*q(1))*pow(gamma,3.0/2.0)*4.0+sqrt(2.0)*(q(1)*q(1)*q(1))*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))-(q(0)*q(0))*(q(2)*q(2))*pow(gamma,3.0/2.0)*8.0-q(0)*(q(1)*q(1))*q(2)*sqrt(gamma)*8.0+q(0)*(q(1)*q(1))*q(2)*pow(gamma,3.0/2.0)*1.2E1+sqrt(2.0)*(q(1)*q(1)*q(1))*gamma*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))-sqrt(2.0)*q(0)*q(1)*q(2)*gamma*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))*2.0)*(1.0/4.0))/(sqrt(2.0)*(q(0)*q(0)*q(0))*q(2)*gamma*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))*2.0-sqrt(2.0)*(q(0)*q(0))*(q(1)*q(1))*gamma*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0)));
+    l_eigvecs(1,1) = ((q(1)*q(1)*q(1)*q(1))*sqrt(gamma)*(3.0/2.0)-(q(1)*q(1)*q(1)*q(1))*pow(gamma,3.0/2.0)*(3.0/2.0)+sqrt(2.0)*(q(1)*q(1)*q(1))*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))*(1.0/2.0)-(q(0)*q(0))*(q(2)*q(2))*pow(gamma,3.0/2.0)*2.0-q(0)*(q(1)*q(1))*q(2)*sqrt(gamma)*3.0+q(0)*(q(1)*q(1))*q(2)*pow(gamma,3.0/2.0)*4.0)/(sqrt(2.0)*q(0)*(q(1)*q(1))*gamma*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))-sqrt(2.0)*(q(0)*q(0))*q(2)*gamma*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))*2.0);
+    l_eigvecs(1,2) = (-(q(1)*q(1)*q(1))*sqrt(gamma)+(q(1)*q(1)*q(1))*pow(gamma,3.0/2.0)-sqrt(2.0)*(q(1)*q(1))*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))*(1.0/2.0)+q(0)*q(1)*q(2)*sqrt(gamma)*2.0-q(0)*q(1)*q(2)*pow(gamma,3.0/2.0)*2.0+sqrt(2.0)*(q(1)*q(1))*gamma*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))*(1.0/2.0)-sqrt(2.0)*q(0)*q(2)*gamma*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0)))/(sqrt(2.0)*(q(1)*q(1))*gamma*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))-sqrt(2.0)*q(0)*q(2)*gamma*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))*2.0);
+    l_eigvecs(2,0) = (q(1)*((q(1)*q(1)*q(1)*q(1))*sqrt(gamma)*-4.0+(q(1)*q(1)*q(1)*q(1))*pow(gamma,3.0/2.0)*4.0+sqrt(2.0)*(q(1)*q(1)*q(1))*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))+(q(0)*q(0))*(q(2)*q(2))*pow(gamma,3.0/2.0)*8.0+q(0)*(q(1)*q(1))*q(2)*sqrt(gamma)*8.0-q(0)*(q(1)*q(1))*q(2)*pow(gamma,3.0/2.0)*1.2E1+sqrt(2.0)*(q(1)*q(1)*q(1))*gamma*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))-sqrt(2.0)*q(0)*q(1)*q(2)*gamma*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))*2.0)*(1.0/4.0))/(sqrt(2.0)*(q(0)*q(0)*q(0))*q(2)*gamma*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))*2.0-sqrt(2.0)*(q(0)*q(0))*(q(1)*q(1))*gamma*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0)));
+    l_eigvecs(2,1) = ((q(1)*q(1)*q(1)*q(1))*sqrt(gamma)*(-3.0/2.0)+(q(1)*q(1)*q(1)*q(1))*pow(gamma,3.0/2.0)*(3.0/2.0)+sqrt(2.0)*(q(1)*q(1)*q(1))*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))*(1.0/2.0)+(q(0)*q(0))*(q(2)*q(2))*pow(gamma,3.0/2.0)*2.0+q(0)*(q(1)*q(1))*q(2)*sqrt(gamma)*3.0-q(0)*(q(1)*q(1))*q(2)*pow(gamma,3.0/2.0)*4.0)/(sqrt(2.0)*q(0)*(q(1)*q(1))*gamma*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))-sqrt(2.0)*(q(0)*q(0))*q(2)*gamma*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))*2.0);
+    l_eigvecs(2,2) = ((q(1)*q(1)*q(1))*sqrt(gamma)-(q(1)*q(1)*q(1))*pow(gamma,3.0/2.0)-sqrt(2.0)*(q(1)*q(1))*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))*(1.0/2.0)-q(0)*q(1)*q(2)*sqrt(gamma)*2.0+q(0)*q(1)*q(2)*pow(gamma,3.0/2.0)*2.0+sqrt(2.0)*(q(1)*q(1))*gamma*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))*(1.0/2.0)-sqrt(2.0)*q(0)*q(2)*gamma*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0)))/(sqrt(2.0)*(q(1)*q(1))*gamma*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))-sqrt(2.0)*q(0)*q(2)*gamma*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))*2.0);
 
     return l_eigvecs;
 }
@@ -110,15 +113,9 @@ Matrix3d Flux::calculate_eigenvalues(Vector3d q, double gamma) {
     Matrix3d eigenvalues;
 
     // Calculate
-    eigenvalues(0,0) = 1.0/(q(0)*q(0))*((q(1)*q(1))*gamma+q(1)*q(1)-q(0)*q(2)*gamma*2.0)*(1.0/2.0);
-    eigenvalues(0,1) = -q(1)/q(0);
-    eigenvalues(0,2) = 1.0;
-    eigenvalues(1,0) = (1.0/(q(0)*q(0))*((q(1)*q(1))*gamma+q(1)*q(1))*(1.0/2.0))/(gamma-1.0)-(1.0/(q(0)*q(0))*q(1)*(q(1)*2.0+sqrt(2.0)*sqrt(gamma)*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0)))*(1.0/2.0))/(gamma-1.0);
-    eigenvalues(1,1) = (q(1)+sqrt(2.0)*sqrt(gamma)*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))*(1.0/2.0))/(q(0)*(gamma-1.0))-(q(1)*gamma)/(q(0)*(gamma-1.0));
-    eigenvalues(1,2) = 1.0;
-    eigenvalues(2,0) = (1.0/(q(0)*q(0))*((q(1)*q(1))*gamma+q(1)*q(1))*(1.0/2.0))/(gamma-1.0)-(1.0/(q(0)*q(0))*q(1)*(q(1)*2.0-sqrt(2.0)*sqrt(gamma)*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0)))*(1.0/2.0))/(gamma-1.0);
-    eigenvalues(2,1) = (q(1)-sqrt(2.0)*sqrt(gamma)*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))*(1.0/2.0))/(q(0)*(gamma-1.0))-(q(1)*gamma)/(q(0)*(gamma-1.0));
-    eigenvalues(2,2) = 1.0;
+    eigenvalues(0,0) = q(1)/q(0);
+    eigenvalues(1,1) = (q(1)+sqrt(2.0)*sqrt(gamma)*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))*(1.0/2.0))/q(0);
+    eigenvalues(2,2) = (q(1)-sqrt(2.0)*sqrt(gamma)*sqrt((q(0)*q(2)*2.0-q(1)*q(1))*(gamma-1.0))*(1.0/2.0))/q(0);
 
     return eigenvalues;
 }

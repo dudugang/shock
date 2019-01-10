@@ -27,7 +27,8 @@ class Flow {
         void initialize();
         //double calculate_dt(vector<vector<double> >&, double, double, double);
         void solve();
-        void iterate(vector<VectorXd>&, double&, double, double, double, int);
+        void iterate();
+        double calculate_pressure(VectorXd, double);
         void write();
         void output();
 };

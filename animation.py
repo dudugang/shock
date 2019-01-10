@@ -18,7 +18,7 @@ n_cells = numbers[0]
 n_times = numbers[1]
 
 # Initialize arrays
-data = np.zeros((n_cells, 7, n_times))
+data = np.zeros((n_cells, 5, n_times))
 times = np.zeros(n_times)
 
 # Load data into data array
@@ -28,7 +28,7 @@ for n in range(0,n_times):
         string = lines[2 + n*(n_cells+2) + i]
         split = string.split()
         numbers = [float(j) for j in split]
-        data[i,:,n] = numbers[0:7]
+        data[i,:,n] = numbers[0:5]
 
 # Choose index to plot
 plotting_index = 4
@@ -54,7 +54,7 @@ else:
     # Define what happens at every frame in animation
     def update(n, plotting_index, data, line):
         line.set_data(data[:,0,n], data[:,plotting_index,n])
-        line.axes.axis([0, 1, 0, 100])
+        line.axes.axis([0, 1, 5e5, 2e6])
         ax.set_title("Pressure over Distance at t = " + str(times[n]) + " s.")
         return line,
 

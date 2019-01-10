@@ -18,12 +18,12 @@ Flow::Flow() {
     // Generate parameters and boundary conditions
     // TODO: Add inputfile so that inputs are not hard-coded
     n_equations = 3;
-    n_cells = 10;
+    n_cells = 200;
     n_ghosts = 2;
     cfl = .2;
-    dt = 1e-4;
+    dt = 5e-8;
     time = 0;
-    n_iter = 1;
+    n_iter = 2000;
     length = 1;
 
     // Chemistry
@@ -56,15 +56,15 @@ void Flow::initialize() {
     // TODO: Add user-input initial conditions to replace hard-coded values
 
     // Shock
-    for (int i = 0; i < n_cells/2; i++) {
-        q[i](0) = 1;
-        q[i](1) = 0.01;
-        q[i](2) = 15000;
+    for (int i = 0; i < (n_cells + n_ghosts)/2; i++) {
+        q[i](0) = 1.5;
+        q[i](1) = 0.00001;
+        q[i](2) = 3.7e6;
     }
-    for (int i = n_cells/2; i < n_cells; i++) {
+    for (int i = (n_cells + n_ghosts)/2; i < (n_cells + n_ghosts); i++) {
         q[i](0) = 1;
-        q[i](1) = 0.01;
-        q[i](2) = 10000;
+        q[i](1) = 0.00001;
+        q[i](2) = 2.5e6;
     }
 
     // Calculate timestep
@@ -108,7 +108,7 @@ void Flow::solve() {
     // Iterate until n_iter is reached
     for (int i=1; i<=n_iter; i++) {
         cout << "----- Iteration " << i << ", t = " << time << " s. " << endl;
-        iterate(q, time, gamma, cfl, dx, n_cells);
+        iterate();
         write();
     }
 }
@@ -119,9 +119,7 @@ void Flow::solve() {
 // calculating wall fluxes by solving the Riemann problem, calculating the
 // timestep given the CFL, and advancing the solution forward to the next
 // timestep.
-void Flow::iterate(
-        vector<VectorXd>& q, double& time, double gamma, double cfl,
-        double dx, int n_cells) {
+void Flow::iterate() {
 
     // Calculate timestep
     //dt = calculate_dt(q, gamma, cfl, dx);
@@ -139,17 +137,28 @@ void Flow::iterate(
     q[0] = q[1];
     q[0](1) = -q[1](1);
     q[n_cells+1] = q[n_cells];
-    q[n_cells+1](1) = q[n_cells](1);
+    q[n_cells+1](1) = -q[n_cells](1);
 
     // Advance time forward
     time = time + dt;
 }
 
+// // // // //
+// This function calculates a pressure value given the q vector and gamma
+// using the Ideal Gas Law, p = rho*R*T.
+double Flow::calculate_pressure(VectorXd q, double gamma) {
+    double p = (gamma - 1) * (q(2) - q(1)*q(1)/(2*q(0)));
+    return p;
+}
 
 void Flow::write() {
 
     // Find pressure distribution
-    //vector<double> p = calculate_pressure(q, gamma);
+    vector<double> p;
+    p.resize(n_cells + n_ghosts);
+    for (int i = 0; i < n_cells + n_ghosts; i++) {
+        p[i] = calculate_pressure(q[i], gamma);
+    }
 
     // Find u distribution
     //vector<double> u = calculate_u(q, gamma);
@@ -163,8 +172,8 @@ void Flow::write() {
     solution_file << time << endl;
     for (int i = 0; i<n_cells; i++) {
         solution_file << grid[i] << " "
-            << q[i](0) << " " << q[i](1) << " " << q[i](2) << " " << endl;
-            //<< p[i] << " " << u[i] << " " << temperature[i] << endl;
+            << q[i](0) << " " << q[i](1) << " " << q[i](2) << " " << p[i] << endl;
+            //u[i] << " " << temperature[i] << endl;
     }
     solution_file << endl;
 }
@@ -173,7 +182,7 @@ void Flow::output() {
     // Output results to stdout
     cout << "Final t = " << time << " s." << endl;
     cout << "Solution:" << endl;
-    for (int i = 0; i < q.size(); i++) {
+    for (int i = 0; i < n_cells + n_ghosts; i++) {
         cout << q[i](0) << ", " << q[i](1) << ", " << q[i](2) << "    ";
     }
     cout << endl;

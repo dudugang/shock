@@ -6,6 +6,7 @@ bin = bin
 build = build
 include_paths = include include/eigen
 include = $(foreach dir, $(include_paths), -I$(dir))
+flags = -O3 -Wall
 
 .PHONY: all
 all: directories $(bin)/$(exe)
@@ -26,16 +27,16 @@ clean:
 	rmdir obj/ bin/
 
 $(bin)/$(exe): $(obj)/Algebra.o $(obj)/Flux.o $(obj)/Flow.o $(obj)/main.o
-	$(CXX) -o $@ $(include) $(obj)/Algebra.o $(obj)/Flux.o $(obj)/Flow.o $(obj)/main.o
+	$(CXX) $(flags) -o $@ $(include) $(obj)/Algebra.o $(obj)/Flux.o $(obj)/Flow.o $(obj)/main.o
 
 $(obj)/Algebra.o: $(src)/Algebra.cpp
-	$(CXX) -o $@ $(include) -c $<
+	$(CXX) $(flags) -o $@ $(include) -c $<
 
 $(obj)/Flux.o: $(src)/Flux.cpp
-	$(CXX) -o $@ $(include) -c $<
+	$(CXX) $(flags) -o $@ $(include) -c $<
 
 $(obj)/Flow.o: $(src)/Flow.cpp
-	$(CXX) -o $@ $(include) -c $<
+	$(CXX) $(flags) -o $@ $(include) -c $<
 
 $(obj)/main.o: $(src)/main.cpp
-	$(CXX) -o $@ $(include) -c $<
+	$(CXX) $(flags) -o $@ $(include) -c $<
