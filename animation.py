@@ -16,16 +16,17 @@ lines  = [x.strip() for x in lines]
 numbers = [int(i) for i in lines[0].split()]
 n_cells = numbers[0]
 n_times = numbers[1]
+n_ghosts = 2;
 
 # Initialize arrays
-data = np.zeros((n_cells, 5, n_times))
+data = np.zeros((n_cells + n_ghosts, 5, n_times))
 times = np.zeros(n_times)
 
 # Load data into data array
 for n in range(0,n_times):
-    times[n] = float(lines[1 + n*(n_cells+2)])
-    for i in range(0,n_cells):
-        string = lines[2 + n*(n_cells+2) + i]
+    times[n] = float(lines[1 + n*(n_cells + n_ghosts + 2)])
+    for i in range(0,n_cells + n_ghosts):
+        string = lines[2 + n*(n_cells + n_ghosts + 2) + i]
         split = string.split()
         numbers = [float(j) for j in split]
         data[i,:,n] = numbers[0:5]

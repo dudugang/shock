@@ -7,6 +7,7 @@ class Flow {
     private:
         vector<double> grid;
         vector<VectorXd> q;
+        vector<VectorXd> q_old;
         vector<VectorXd> f_right;
         vector<VectorXd> f_left;
         double gamma;

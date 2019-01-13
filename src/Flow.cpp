@@ -33,20 +33,22 @@ Flow::Flow() {
 
 
 void Flow::initialize() {
-    // Allocate grid, q, f_right, and f_left
+    // Allocate space for data
     grid.resize(n_cells + n_ghosts);
     q.resize(n_cells + n_ghosts);
+    q_old.resize(n_cells + n_ghosts);
     f_right.resize(n_cells + n_ghosts);
     f_left.resize(n_cells + n_ghosts);
     for (int i = 0; i < n_cells + n_ghosts; i++) {
         q[i].resize(n_equations);
+        q_old[i].resize(n_equations);
         f_right[i].resize(n_equations);
         f_left[i].resize(n_equations);
     }
 
     // Generate grid
-    for (int i=0; i<n_cells; i++) {
-        grid[i] = (length*i)/(n_cells) + (length/2)/(n_cells);
+    for (int i=0; i < (n_cells + n_ghosts); i++) {
+        grid[i] = (length*i)/(n_cells) - (length/2)/(n_cells);
     }
 
     // Calculate spacing
@@ -124,12 +126,15 @@ void Flow::iterate() {
     // Calculate timestep
     //dt = calculate_dt(q, gamma, cfl, dx);
 
+    // Copy data from q into q_old
+    q_old = q;
+
     // Calculate fluxes, then advance every non-ghost cell forward by one
     // timestep. Indices only include non-ghost cells.
     for (int i = 1; i < n_cells + 1; i++) {
-        f_right[i] = Flux::calculate_f_right(q[i], q[i+1], gamma);
-        f_left[i] = Flux::calculate_f_left(q[i], q[i-1], gamma);
-        q[i] = q[i] - (dt/dx)*(f_right[i] - f_left[i]);
+        f_right[i] = Flux::calculate_f_right(q_old[i], q_old[i+1], gamma);
+        f_left[i] = Flux::calculate_f_left(q_old[i], q_old[i-1], gamma);
+        q[i] = q_old[i] - (dt/dx)*(f_right[i] - f_left[i]);
     }
 
     // Update ghost cells. This is currently a reflective boundary condition.
@@ -156,7 +161,7 @@ void Flow::write() {
     // Find pressure distribution
     vector<double> p;
     p.resize(n_cells + n_ghosts);
-    for (int i = 0; i < n_cells + n_ghosts; i++) {
+    for (int i = 0; i < (n_cells + n_ghosts); i++) {
         p[i] = calculate_pressure(q[i], gamma);
     }
 
@@ -170,7 +175,7 @@ void Flow::write() {
     ofstream solution_file;
     solution_file.open("solution.dat", std::ios_base::app);
     solution_file << time << endl;
-    for (int i = 0; i<n_cells; i++) {
+    for (int i = 0; i < (n_cells + n_ghosts); i++) {
         solution_file << grid[i] << " "
             << q[i](0) << " " << q[i](1) << " " << q[i](2) << " " << p[i] << endl;
             //u[i] << " " << temperature[i] << endl;
@@ -182,7 +187,7 @@ void Flow::output() {
     // Output results to stdout
     cout << "Final t = " << time << " s." << endl;
     cout << "Solution:" << endl;
-    for (int i = 0; i < n_cells + n_ghosts; i++) {
+    for (int i = 0; i < (n_cells + n_ghosts); i++) {
         cout << q[i](0) << ", " << q[i](1) << ", " << q[i](2) << "    ";
     }
     cout << endl;
