@@ -43,9 +43,9 @@ Vector3d Flux::calculate_f_left(Vector3d q, Vector3d q_left, double gamma) {
 
     // Calculate needed information from cell i-1
     Matrix3d r_eigvecs_left = calculate_right_eigenvectors(q_left, gamma);
-    Matrix3d l_eigvecs_left= calculate_left_eigenvectors(q_left, gamma);
-    Matrix3d eigenvalues_left= calculate_eigenvalues(q_left, gamma);
-    Matrix3d plus_eigenvalues_left= Algebra::return_positive(eigenvalues_left);
+    Matrix3d l_eigvecs_left = calculate_left_eigenvectors(q_left, gamma);
+    Matrix3d eigenvalues_left = calculate_eigenvalues(q_left, gamma);
+    Matrix3d plus_eigenvalues_left = Algebra::return_positive(eigenvalues_left);
 
     // Calculate flux
     Vector3d f_left = r_eigvecs * minus_eigenvalues * l_eigvecs * q
@@ -111,6 +111,7 @@ Matrix3d Flux::calculate_left_eigenvectors(Vector3d q, double gamma) {
 Matrix3d Flux::calculate_eigenvalues(Vector3d q, double gamma) {
     // Initialize
     Matrix3d eigenvalues;
+    eigenvalues.setZero();
 
     // Calculate
     eigenvalues(0,0) = q(1)/q(0);

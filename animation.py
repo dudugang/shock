@@ -60,7 +60,7 @@ else:
 
     # Run animation
     ani = animation.FuncAnimation(fig, update, n_times, fargs=[plotting_index, data, line],
-                                  interval=10, blit=False)
+                                  interval=10, blit=True)
 
     # Set up formatting for the movie files
     #Writer = animation.writers['ffmpeg']

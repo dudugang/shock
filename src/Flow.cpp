@@ -21,7 +21,7 @@ Flow::Flow() {
     n_cells = 200;
     n_ghosts = 2;
     cfl = .2;
-    dt = 5e-8;
+    dt = 1e-6;
     time = 0;
     n_iter = 2000;
     length = 1;
