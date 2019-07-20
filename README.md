@@ -1,7 +1,7 @@
-Aeolus
+Shock
 ==========
 
-Aeolus is an unstructured 2D high-order finite volume CFD code. This code is a
+Shock is an unstructured 2D high-order finite volume CFD code. This code is a
 work in progress.
 
 Getting Started
