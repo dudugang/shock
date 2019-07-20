@@ -1,4 +1,4 @@
-#include "../include/input.h"
+#include <input.h>
 
 Input::Input() {
     double dt = .0001;

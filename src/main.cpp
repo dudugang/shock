@@ -1,17 +1,14 @@
-#include <Flow.h>
+#include <iostream>
+#include <flowfield.h>
+using std::cout;
+using std::endl;
 
 int main(int argc, char* argv[]) {
-    // Make instance of Flow class and initialize inputs
-    Flow flow;
+    // Get inputs
+    Input input;
 
-    // Generates grid and initial conditions from inputs
-    flow.initialize();
-
-    // Run computations
-    flow.solve();
-
-    // Output solution
-    flow.output();
+    // Initialize flowfield
+    //Flowfield flow(input);
 
     return 0;
 }

@@ -1,35 +1,10 @@
 #include <Eigen/Dense>
 #include <vector>
+#include <input.h>
 using namespace Eigen;
 using std::vector;
 
-class Flow {
-    private:
-        vector<double> grid;
-        vector<VectorXd> q;
-        vector<VectorXd> q_old;
-        vector<VectorXd> f_right;
-        vector<VectorXd> f_left;
-        double gamma;
-        double r_gas;
-        int n_equations;
-        int n_cells;
-        int n_ghosts;
-        double cfl;
-        double max_dt;
-        double dt;
-        double time;
-        int n_iter;
-        double length;
-        double dx;
-
+class Flowfield {
     public:
-        Flow();
-        void initialize();
-        //double calculate_dt(vector<vector<double> >&, double, double, double);
-        void solve();
-        void iterate();
-        double calculate_pressure(VectorXd, double);
-        void write();
-        void output();
+        Flowfield(Input);
 };
