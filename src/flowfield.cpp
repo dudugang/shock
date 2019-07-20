@@ -14,7 +14,7 @@ using std::min_element;
 using std::ofstream;
 using std::vector;
 
-Flow::Flow() {
+Flowfield::Flowfield() {
     // Generate parameters and boundary conditions
     // TODO: Add inputfile so that inputs are not hard-coded
     n_equations = 3;
@@ -32,7 +32,7 @@ Flow::Flow() {
 }
 
 
-void Flow::initialize() {
+void Flowfield::initialize() {
     // Allocate space for data
     grid.resize(n_cells + n_ghosts);
     q.resize(n_cells + n_ghosts);
@@ -72,30 +72,9 @@ void Flow::initialize() {
     // Calculate timestep
     //calculate_dt(q, gamma, cfl, dx);
 }
-/*
-double Flow::calculate_dt(vector<vector<double> >& q, double gamma, double cfl, double dx) {
-    // Calculate u
-    vector<double> u = calculate_u(q, gamma);
 
-    // Calculate initial time step
-    double max_u = *max_element(u.begin(),u.end());
-    double min_u = *min_element(u.begin(),u.end());
-    double max_magnitude_u;
-    if (max_u + min_u >= 0) {
-        max_magnitude_u = max_u;
-    } else {
-        max_magnitude_u = -min_u;
-    }
-    double dt = cfl*dx/max_magnitude_u;
-    cout << dt << endl;
-    if (dt > max_dt) {
-        dt = max_dt;
-    }
-    cout << "Timestep: " << dt << " s." << endl;
-    return dt;
-}
-*/
-void Flow::solve() {
+
+void Flowfield::solve() {
     // Wipe old solution file
     remove("solution.dat");
 
@@ -116,47 +95,7 @@ void Flow::solve() {
 }
 
 
-// // // // //
-// This function runs one iteration of the flow solver. This involves
-// calculating wall fluxes by solving the Riemann problem, calculating the
-// timestep given the CFL, and advancing the solution forward to the next
-// timestep.
-void Flow::iterate() {
-
-    // Calculate timestep
-    //dt = calculate_dt(q, gamma, cfl, dx);
-
-    // Copy data from q into q_old
-    q_old = q;
-
-    // Calculate fluxes, then advance every non-ghost cell forward by one
-    // timestep. Indices only include non-ghost cells.
-    for (int i = 1; i < n_cells + 1; i++) {
-        f_right[i] = Flux::calculate_f_right(q_old[i], q_old[i+1], gamma);
-        f_left[i] = Flux::calculate_f_left(q_old[i], q_old[i-1], gamma);
-        q[i] = q_old[i] - (dt/dx)*(f_right[i] - f_left[i]);
-    }
-
-    // Update ghost cells. This is currently a reflective boundary condition.
-    // TODO: Add user-input boundary condition options
-    q[0] = q[1];
-    q[0](1) = -q[1](1);
-    q[n_cells+1] = q[n_cells];
-    q[n_cells+1](1) = -q[n_cells](1);
-
-    // Advance time forward
-    time = time + dt;
-}
-
-// // // // //
-// This function calculates a pressure value given the q vector and gamma
-// using the Ideal Gas Law, p = rho*R*T.
-double Flow::calculate_pressure(VectorXd q, double gamma) {
-    double p = (gamma - 1) * (q(2) - q(1)*q(1)/(2*q(0)));
-    return p;
-}
-
-void Flow::write() {
+void Flowfield::write() {
 
     // Find pressure distribution
     vector<double> p;
@@ -183,7 +122,7 @@ void Flow::write() {
     solution_file << endl;
 }
 
-void Flow::output() {
+void Flowfield::output() {
     // Output results to stdout
     cout << "Final t = " << time << " s." << endl;
     cout << "Solution:" << endl;
