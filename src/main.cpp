@@ -8,7 +8,7 @@ int main(int argc, char* argv[]) {
     Input input;
 
     // Initialize flowfield
-    //Flowfield flow(input);
+    Flowfield flow(input);
 
     return 0;
 }

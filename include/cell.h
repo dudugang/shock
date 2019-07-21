@@ -10,5 +10,4 @@ class Cell {
         int cell_id;
         vector<int> neighbors;
         string type;
-        Cell(double, double, int, vector<int>);
 };

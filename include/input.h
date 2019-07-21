@@ -1,5 +1,6 @@
 class Input {
     public:
+        Input();
         double dt;
         int n_cells;
         int n_iterations;
@@ -7,5 +8,4 @@ class Input {
         double u_l;
         double u_r;
         double dx;
-        Input();
 };

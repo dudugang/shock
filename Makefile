@@ -19,7 +19,7 @@ test_obj = $(test_src:$(test_src_dir)/%.cpp=$(test_obj_dir)/%.o)
 # Paths to includes
 include_paths = include lib/eigen lib/googletest/googletest/include
 # Compiler flags
-flags = $(foreach dir, $(include_paths), -I$(dir)) -std=c++11 -O3 -Wall
+flags = $(foreach dir, $(include_paths), -I$(dir)) -std=c++11 -g -Wall
 # Libraries and locations
 ldlibs = -Llib/googletest/lib -lgtest -lgtest_main -lpthread
 # Useful variables
