@@ -17,7 +17,7 @@ src = $(wildcard $(src_dir)/*.cpp)
 obj = $(src:$(src_dir)/%.cpp=$(obj_dir)/%.o)
 test_obj = $(test_src:$(test_src_dir)/%.cpp=$(test_obj_dir)/%.o)
 # Paths to includes
-include_paths = include lib/eigen lib/googletest/googletest/include
+include_paths = include lib/googletest/googletest/include
 # Compiler flags
 flags = $(foreach dir, $(include_paths), -I$(dir)) -std=c++11 -g -Wall
 # Libraries and locations
