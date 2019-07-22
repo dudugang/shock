@@ -1,8 +1,8 @@
 # Compiler
 CXX = g++
 # Executable names
-exe = flow
-test_exe = flowtest
+exe = shock
+test_exe = shocktest
 # Directories
 src_dir = src
 bin_dir = bin

@@ -5,10 +5,10 @@ using std::endl;
 
 int main(int argc, char* argv[]) {
     // Get inputs
-    Input input;
+    Inputs inputs;
 
     // Initialize flowfield
-    Flowfield flow(input);
+    Flowfield flow(inputs);
 
     return 0;
 }

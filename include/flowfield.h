@@ -1,13 +1,19 @@
 #include <vector>
 #include <unordered_map>
-#include <input.h>
-#include <cell.h>
+#include <inputs.h>
+#include <ghost.h>
+#include <face.h>
+#include <flux.h>
 using std::vector;
 using std::unordered_map;
 
+// Class for storing all cells in the flowfield and for performing high-level
+// functions on flowfield cells.
 class Flowfield {
     public:
-        Flowfield(Input);
-        Input input;
-        unordered_map<int, Cell> cells;
+        Flowfield(Inputs);
+        void calculate_flux();
+        Inputs inputs;
+        unordered_map<int, Cell*> cells;
+        unordered_map<int, Face*> faces;
 };
