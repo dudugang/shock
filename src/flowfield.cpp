@@ -26,20 +26,20 @@ Flowfield::Flowfield(Inputs inputs) {
         double x = i*inputs.dx + inputs.dx/2;
 
         // Vector of cell neighbor IDs
-        vector<int> neighbors{i-1, i+1};
+        vector<Cell*> neighbors{cells[i-1], cells[i+1]};
 
         // Create cell and add to map of cells
-        Cell *current_cell = new Cell(x, q, i, neighbors, nullptr, nullptr);
+        Flow *current_cell = new Flow(x, q, i, neighbors, nullptr, nullptr);
         cells[i] = current_cell;
 
     }
 
     // Add ghost cells
     Ghost *left_ghost  = new Ghost(-inputs.dx/2, inputs.q_left, -1,
-        vector<int>{0}, nullptr, nullptr);
+        vector<Cell*>{cells[0]}, nullptr, nullptr);
     cells[-1] = left_ghost;
     Ghost *right_ghost = new Ghost(inputs.n_cells*inputs.dx + inputs.dx/2,
-        inputs.q_right, inputs.n_cells, vector<int>{inputs.n_cells-1},
+        inputs.q_right, inputs.n_cells, vector<Cell*>{cells[inputs.n_cells-1]},
         nullptr, nullptr);
     cells[inputs.n_cells] = right_ghost;
 
@@ -53,6 +53,9 @@ Flowfield::Flowfield(Inputs inputs) {
         right_cell->left_face = current_face;
         faces[i] = current_face;
     }
+
+    // Start from time 0
+    time = 0;
 
 }
 
@@ -92,16 +95,16 @@ void Flowfield::apply_time_integrator() {
                 cell.q[i] = cell.q[i] - (inputs.dt/inputs.dx)
                     * (cell.right_face->flux[i] - cell.left_face->flux[i]);
             }
+            // Update time
+            time = time + inputs.dt;
             // Debug output
             cout << cell.q[0] << " " << cell.q[1] << " " << cell.q[2] << endl;
         }
 
     }
 
+    // Update ghost cells
+    // TODO: Make separate maps for ghosts and cells
+    cells[-1]->update();
+
 }
-/*
-    def update_ghosts(self):
-        for cell in self.cells.values():
-            if cell.type == 'ghost':
-                cell.update(self.cells[cell.neighbors[0]])
-*/

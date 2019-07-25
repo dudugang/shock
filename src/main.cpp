@@ -1,5 +1,5 @@
 #include <iostream>
-#include <flowfield.h>
+#include <output.h>
 using std::cout;
 using std::endl;
 
@@ -20,6 +20,10 @@ int main(int argc, char* argv[]) {
         flow.apply_time_integrator();
 
     }
+
+    // Output results
+    Output output;
+    output.print(flow);
 
     return 0;
 }

@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <inputs.h>
 #include <ghost.h>
+#include <flow.h>
 #include <face.h>
 #include <flux.h>
 using std::vector;
@@ -17,4 +18,5 @@ class Flowfield {
         Inputs inputs;
         unordered_map<int, Cell*> cells;
         unordered_map<int, Face*> faces;
+        double time;
 };

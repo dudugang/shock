@@ -7,5 +7,6 @@ using std::vector;
 // is not included during either space or time integration.
 class Ghost: public Cell {
     public:
-        Ghost(double, vector<double>, int, vector<int>, Face*, Face*);
+        Ghost(double, vector<double>, int, vector<Cell*>, Face*, Face*);
+        void update();
 };
