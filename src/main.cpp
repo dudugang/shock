@@ -10,5 +10,16 @@ int main(int argc, char* argv[]) {
     // Initialize flowfield
     Flowfield flow(inputs);
 
+    // Main loop: run flux function and time integrator for every iteration
+    for (int i = 0; i < inputs.n_iterations; i++) {
+
+        // Calculate fluxes
+        flow.calculate_flux();
+
+        // Integrate in time
+        flow.apply_time_integrator();
+
+    }
+
     return 0;
 }

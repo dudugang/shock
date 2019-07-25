@@ -11,6 +11,7 @@ class Inputs {
         double length;
         double dx;
         double gamma;
+        int n_equations;
         vector<double> q_left;
         vector<double> q_right;
 };

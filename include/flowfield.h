@@ -13,6 +13,7 @@ class Flowfield {
     public:
         Flowfield(Inputs);
         void calculate_flux();
+        void apply_time_integrator();
         Inputs inputs;
         unordered_map<int, Cell*> cells;
         unordered_map<int, Face*> faces;

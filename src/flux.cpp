@@ -1,4 +1,5 @@
 #include <cmath>
+#include <iostream>
 #include <vector>
 #include <flux.h>
 using std::sqrt;
@@ -38,6 +39,8 @@ vector<double> Flux::steger_warming(vector<double> q_left,
     // Get eigenvalues
     vector<double> eigvalues_l;
     vector<double> eigvalues_r;
+    eigvalues_l.reserve(3);
+    eigvalues_r.reserve(3);
     eigvalues_l[0] = u_l - a_l;
     eigvalues_l[1] = u_l;
     eigvalues_l[2] = u_l + a_l;

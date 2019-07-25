@@ -1,4 +1,8 @@
+#pragma once
+#include <iostream>
+#include <vector>
 #include <cell.h>
+using std::vector;
 
 class Face {
     public:
