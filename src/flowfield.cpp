@@ -97,8 +97,6 @@ void Flowfield::apply_time_integrator() {
             }
             // Update time
             time = time + inputs.dt;
-            // Debug output
-            cout << cell.q[0] << " " << cell.q[1] << " " << cell.q[2] << endl;
         }
 
     }
@@ -106,5 +104,6 @@ void Flowfield::apply_time_integrator() {
     // Update ghost cells
     // TODO: Make separate maps for ghosts and cells
     cells[-1]->update();
+    cells[inputs.n_cells]->update();
 
 }

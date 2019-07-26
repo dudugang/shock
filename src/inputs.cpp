@@ -4,9 +4,9 @@
 Inputs::Inputs() {
 
     // Parameters
-    dt = .0001;
-    n_cells = 10;
-    n_iterations = 10;
+    dt = .0000005;
+    n_cells = 400;
+    n_iterations = 2000;
     length = 1;
     dx = length/n_cells;
     gamma = 1.4;

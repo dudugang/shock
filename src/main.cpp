@@ -3,9 +3,15 @@
 using std::cout;
 using std::endl;
 
+// This is the main, the highest level of the code. This function glues together
+// the rest of the code, without getting into implementation details.
 int main(int argc, char* argv[]) {
+
     // Get inputs
     Inputs inputs;
+
+    // Initialize output
+    Output output(inputs);
 
     // Initialize flowfield
     Flowfield flow(inputs);
@@ -19,11 +25,16 @@ int main(int argc, char* argv[]) {
         // Integrate in time
         flow.apply_time_integrator();
 
+        // Write to file
+        output.write(flow);
+
+        // Output information to stdout
+        output.print(flow, i);
+
     }
 
     // Output results
-    Output output;
-    output.print(flow);
+    output.final_print(flow);
 
     return 0;
 }

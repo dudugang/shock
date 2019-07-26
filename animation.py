@@ -17,9 +17,11 @@ numbers = [int(i) for i in lines[0].split()]
 n_cells = numbers[0]
 n_times = numbers[1]
 n_ghosts = 2;
+n_variables = 4; # Number of variables, including x
+plotting_index = 3 # Index to be plotted
 
 # Initialize arrays
-data = np.zeros((n_cells + n_ghosts, 5, n_times))
+data = np.zeros((n_cells + n_ghosts, n_variables, n_times))
 times = np.zeros(n_times)
 
 # Load data into data array
@@ -29,16 +31,13 @@ for n in range(0,n_times):
         string = lines[2 + n*(n_cells + n_ghosts + 2) + i]
         split = string.split()
         numbers = [float(j) for j in split]
-        data[i,:,n] = numbers[0:5]
-
-# Choose index to plot
-plotting_index = 4
+        data[i,:,n] = numbers[0:n_variables]
 
 # Make plot, if desired
 if 'image' in arguments:
     fig = plt.figure(figsize=(12,5))
     plot_iter = 190
-    plt.plot(data[:,0,plot_iter], data[:,plotting_index,plot_iter], color='k', marker='o', linewidth=3, markersize=8)
+    plt.plot(data[:,0,plot_iter], data[:,plotting_index,plot_iter], 'ok', linewidth=3, markersize=8)
     plt.xlabel('x (m.)', fontsize=20)
     plt.ylabel('p (Pa)', fontsize=20)
     print(times[plot_iter]);
@@ -48,14 +47,14 @@ else:
 
     # Create figure
     fig, ax = plt.subplots(figsize=(15,7))
-    line, = ax.plot(data[:,0,0], data[:,plotting_index,0], color='k', marker='o')
+    line, = ax.plot(data[:,0,0], data[:,plotting_index,0], 'ok')
     plt.xlabel('x (m.)')
     plt.ylabel('p (Pa)')
 
     # Define what happens at every frame in animation
     def update(n, plotting_index, data, line):
         line.set_data(data[:,0,n], data[:,plotting_index,n])
-        line.axes.axis([0, 1, 5e5, 2e6])
+        line.axes.axis([0, 1, 2e6, 4e6])
         ax.set_title("Pressure over Distance at t = " + str(times[n]) + " s.")
         return line,
 

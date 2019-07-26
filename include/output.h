@@ -1,3 +1,4 @@
+#include <fstream>
 #include <iostream>
 #include <flowfield.h>
 
@@ -6,6 +7,8 @@
 // to a solution file for postprocessing.
 class Output {
     public:
-        void print(Flowfield);
-        void write();
+        Output(Inputs);
+        void print(Flowfield, int);
+        void final_print(Flowfield);
+        void write(Flowfield);
 };

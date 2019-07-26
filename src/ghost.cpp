@@ -14,6 +14,6 @@ Ghost::Ghost(double x, vector<double> q, int cell_id, vector<Cell*> neighbors,
 // BCs are used.
 void Ghost::update() {
     q[0] =  neighbors[0]->q[0];
-    q[1] = -neighbors[0]->q[0];
-    q[2] =  neighbors[0]->q[0];
+    q[1] = -neighbors[0]->q[1];
+    q[2] =  neighbors[0]->q[2];
 }
