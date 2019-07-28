@@ -1,14 +1,14 @@
 #pragma once
 #include <iostream>
 #include <vector>
-#include <cell.h>
+#include <volume.h>
 using std::vector;
 
 class Face {
     public:
-        Face(int, Cell*, Cell*);
+        Face(int, Volume*, Volume*);
         int face_id;
-        Cell *left_cell;
-        Cell *right_cell;
+        Volume *left_volume;
+        Volume *right_volume;
         vector<double> flux;
 };

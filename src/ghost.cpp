@@ -3,9 +3,9 @@
 using std::vector;
 
 // Constructor
-Ghost::Ghost(double x, vector<double> q, int cell_id, vector<Cell*> neighbors,
-    Face *left_face, Face *right_face) : Cell(x, q, cell_id, neighbors,
-    left_face, right_face) {
+Ghost::Ghost(double x, vector<double> q, int volume_id,
+    vector<Volume*> neighbors, Face *left_face, Face *right_face) : Volume(x, q,
+    volume_id, neighbors, left_face, right_face) {
     this->type = "ghost";
 }
 

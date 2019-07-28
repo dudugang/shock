@@ -1,17 +1,15 @@
+#include <iostream>
 #include <cell.h>
-#include <vector>
-using std::cout;
-using std::endl;
 using std::vector;
 
 // Constructor
-Cell::Cell(double x, vector<double> q, int cell_id, vector<Cell*> neighbors,
-    Face *left_face, Face *right_face) {
-    cout << "Creating cell with ID " << cell_id << endl;
-    this->x = x;
-    this->q = q;
-    this->cell_id = cell_id;
-    this->neighbors = neighbors;
-    this->left_face = left_face;
-    this->right_face = right_face;
+Cell::Cell(double x, vector<double> q, int volume_id, vector<Volume*> neighbors,
+    Face *left_face, Face *right_face) : Volume(x, q, volume_id, neighbors,
+    left_face, right_face) {
+    this->type = "flow";
 }
+
+// TODO: Add update, so that polymorphism could be used for both the time
+// integrator and the ghost cell update
+// TODO: Maybe don't do this, since flow cells need to be updated before ghosts
+void Cell::update() {}

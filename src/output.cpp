@@ -21,7 +21,7 @@ Output::Output(Inputs inputs) {
 // Output information after each iteration
 void Output::print(Flowfield flow, int i) {
 
-    cout << "Iteration " << i << ": " << flow.cells[5]->q[2] << endl;
+    cout << "Iteration " << i << ": " << flow.id_to_volume[5]->q[2] << endl;
 
 }
 
@@ -31,10 +31,9 @@ void Output::final_print(Flowfield flow) {
 
     cout << "Final t = " << flow.time << " s." << endl;
     cout << "Solution:" << endl;
-    for (auto &pair : flow.cells) {
-        Cell &cell = *(pair.second);
-        cout << "Cell ID " << cell.cell_id << ": " << cell.q[0] << ", "
-             << cell.q[1] << ", " << cell.q[2] << endl;
+    for (auto &cell : flow.cells) {
+        cout << "Volume ID " << cell->volume_id << ": " << cell->q[0] << ", "
+             << cell->q[1] << ", " << cell->q[2] << endl;
     }
     cout << endl;
 
@@ -58,10 +57,10 @@ void Output::write(Flowfield flow) {
     ofstream solution_file;
     solution_file.open("solution.dat", std::ios_base::app);
     solution_file << flow.time << endl;
-    for (auto &pair : flow.cells) {
-        Cell &cell = *(pair.second);
-        solution_file << cell.x << " "
-            << cell.q[0] << " " << cell.q[1] << " " << cell.q[2] << " " << endl;
+    for (auto &volume : flow.volumes) {
+        solution_file << volume->x << " "
+            << volume->q[0] << " " << volume->q[1] << " " << volume->q[2] << " "
+            << endl;
             //u[i] << " " << temperature[i] << endl;
     }
     solution_file << endl;

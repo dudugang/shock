@@ -26,32 +26,39 @@ Flowfield::Flowfield(Inputs inputs) {
         double x = i*inputs.dx + inputs.dx/2;
 
         // Vector of cell neighbor IDs
-        vector<Cell*> neighbors{cells[i-1], cells[i+1]};
+        vector<Volume*> neighbors{id_to_volume[i-1], id_to_volume[i+1]};
 
-        // Create cell and add to map of cells
-        Flow *current_cell = new Flow(x, q, i, neighbors, nullptr, nullptr);
-        cells[i] = current_cell;
+        // Create cell and add to map/set of cells
+        Cell *current_cell = new Cell(x, q, i, neighbors, nullptr, nullptr);
+        id_to_volume[i] = current_cell;
+        cells.insert(current_cell);
+        volumes.insert(current_cell);
 
     }
 
     // Add ghost cells
     Ghost *left_ghost  = new Ghost(-inputs.dx/2, inputs.q_left, -1,
-        vector<Cell*>{cells[0]}, nullptr, nullptr);
-    cells[-1] = left_ghost;
+        vector<Volume*>{id_to_volume[0]}, nullptr, nullptr);
+    id_to_volume[-1] = left_ghost;
+    ghosts.insert(left_ghost);
+    volumes.insert(left_ghost);
     Ghost *right_ghost = new Ghost(inputs.n_cells*inputs.dx + inputs.dx/2,
-        inputs.q_right, inputs.n_cells, vector<Cell*>{cells[inputs.n_cells-1]},
+        inputs.q_right, inputs.n_cells, vector<Volume*>{id_to_volume[inputs.n_cells-1]},
         nullptr, nullptr);
-    cells[inputs.n_cells] = right_ghost;
+    id_to_volume[inputs.n_cells] = right_ghost;
+    ghosts.insert(right_ghost);
+    volumes.insert(right_ghost);
 
     // Create faces of cells and assign neighbor information
     for (int i = 0; i < inputs.n_cells + 1; i++) {
-        Cell *left_cell = cells[i-1];
-        Cell *right_cell = cells[i];
+        Volume *left_cell = id_to_volume[i-1];
+        Volume *right_cell = id_to_volume[i];
         Face *current_face = new Face(i, left_cell, right_cell);
         // Inform neighbor cells of their new face
         left_cell->right_face = current_face;
         right_cell->left_face = current_face;
-        faces[i] = current_face;
+        id_to_face[i] = current_face;
+        faces.insert(current_face);
     }
 
     // Start from time 0
@@ -65,14 +72,11 @@ void Flowfield::calculate_flux() {
 
     // For every pair of face IDs and faces, calculate the flux through each
     // of the faces
-    for (auto &pair : faces) {
-
-        // Convenient reference to the current face
-        Face &face = *(pair.second);
+    for (auto &face : faces) {
 
         // Get face flux
-        face.flux = Flux::steger_warming(face.left_cell->q, face.right_cell->q,
-            inputs.gamma);
+        face->flux = Flux::steger_warming(face->left_volume->q,
+            face->right_volume->q, inputs.gamma);
 
     }
 
@@ -83,27 +87,21 @@ void Flowfield::calculate_flux() {
 void Flowfield::apply_time_integrator() {
 
     // For every pair of cells and cell IDs, apply the time integrator
-    for (auto &pair : cells) {
+    for (auto &cell : cells) {
 
-        // Convenient reference to the current cell
-        Cell &cell = *(pair.second);
-
-        // Only apply to flowfield cells, not ghosts
-        if (cell.type == "flow") {
-            // Apply to every equation
-            for (int i = 0; i < inputs.n_equations; i++) {
-                cell.q[i] = cell.q[i] - (inputs.dt/inputs.dx)
-                    * (cell.right_face->flux[i] - cell.left_face->flux[i]);
-            }
-            // Update time
-            time = time + inputs.dt;
+        // Apply to every equation
+        for (int i = 0; i < inputs.n_equations; i++) {
+            cell->q[i] = cell->q[i] - (inputs.dt/inputs.dx)
+                * (cell->right_face->flux[i] - cell->left_face->flux[i]);
         }
+        // Update time
+        time = time + inputs.dt;
 
     }
 
     // Update ghost cells
-    // TODO: Make separate maps for ghosts and cells
-    cells[-1]->update();
-    cells[inputs.n_cells]->update();
+    for (auto &ghost : ghosts) {
+        ghost->update();
+    }
 
 }
