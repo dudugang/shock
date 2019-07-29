@@ -16,11 +16,14 @@ int main(int argc, char* argv[]) {
     // Initialize flowfield
     Flowfield flow(inputs);
 
+    // Initialize fluxes
+    Flux flux;
+
     // Main loop: run flux function and time integrator for every iteration
     for (int i = 0; i < inputs.n_iterations; i++) {
 
         // Calculate fluxes
-        flow.calculate_flux();
+        flow.calculate_flux(flux);
 
         // Integrate in time
         flow.apply_time_integrator();

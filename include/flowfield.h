@@ -15,7 +15,7 @@ using std::unordered_set;
 class Flowfield {
     public:
         Flowfield(Inputs);
-        void calculate_flux();
+        void calculate_flux(Flux&);
         void apply_time_integrator();
         Inputs inputs;
         unordered_set<Volume*> volumes;

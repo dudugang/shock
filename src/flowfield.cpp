@@ -68,14 +68,14 @@ Flowfield::Flowfield(Inputs inputs) {
 
 
 // Calculate fluxes through every face in domain
-void Flowfield::calculate_flux() {
+void Flowfield::calculate_flux(Flux &flux) {
 
     // For every pair of face IDs and faces, calculate the flux through each
     // of the faces
     for (auto &face : faces) {
 
         // Get face flux
-        face->flux = Flux::steger_warming(face->left_volume->q,
+        face->flux = flux.steger_warming(face->left_volume->q,
             face->right_volume->q, inputs.gamma);
 
     }

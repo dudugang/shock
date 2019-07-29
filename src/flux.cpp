@@ -6,6 +6,21 @@ using std::sqrt;
 using std::vector;
 
 
+// Constructor
+Flux::Flux() {
+
+    // Resize vectors
+    eigvalues_l.resize(3);
+    eigvalues_r.resize(3);
+    eig_split_l.resize(3);
+    eig_split_r.resize(3);
+    flux_l.resize(3);
+    flux_r.resize(3);
+    total_flux.resize(3);
+
+}
+
+
 // Calculate fluxes using Steger and Warming's method. Most of the math/theory
 // behind this code is given in "Riemann Solvers and Numerical Methods for Fluid
 // Dynamics" by E. F. Toro. The result is a vector with two elements, the first
@@ -37,10 +52,6 @@ vector<double> Flux::steger_warming(vector<double> q_left,
     double h_r = (1/2)*(u_r*u_r) + (a_r*a_r)/(gamma-1);
 
     // Get eigenvalues
-    vector<double> eigvalues_l;
-    vector<double> eigvalues_r;
-    eigvalues_l.resize(3);
-    eigvalues_r.resize(3);
     eigvalues_l[0] = u_l - a_l;
     eigvalues_l[1] = u_l;
     eigvalues_l[2] = u_l + a_l;
@@ -50,10 +61,6 @@ vector<double> Flux::steger_warming(vector<double> q_left,
 
     // Split eigenvalues. Keep positive eigenvalues from the left, and negative
     // eigenvalues from the right.
-    vector<double> eig_split_l;
-    vector<double> eig_split_r;
-    eig_split_l.resize(3);
-    eig_split_r.resize(3);
     for (int i = 0; i < eigvalues_l.size(); i++) {
         if (eigvalues_l[i] > 0) {
             eig_split_l[i] = eigvalues_l[i];
@@ -70,10 +77,6 @@ vector<double> Flux::steger_warming(vector<double> q_left,
     }
 
     // Initialize and calculate fluxes
-    vector<double> flux_l;
-    vector<double> flux_r;
-    flux_l.resize(3);
-    flux_r.resize(3);
     double coefficient_l = q1_l/(2*gamma);
     double coefficient_r = q1_r/(2*gamma);
     // Calculate left fluxes
@@ -92,8 +95,6 @@ vector<double> Flux::steger_warming(vector<double> q_left,
         (gamma-1)*(u_r*u_r)*eig_split_r[1] + (h_r + u_r*a_r)*eig_split_r[2] );
 
     // Add left and right fluxes to get resultant flux through face
-    vector<double> total_flux;
-    total_flux.resize(3);
     for (int i = 0; i < total_flux.size(); i++) {
         total_flux[i] = flux_l[i] + flux_r[i];
     }
