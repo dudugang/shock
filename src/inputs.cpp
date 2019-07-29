@@ -10,7 +10,7 @@ Inputs::Inputs() {
     length = 1;
     dx = length/n_cells;
     gamma = 1.4;
-    n_equations = 3;
+    n_equations = 4;
     output_rate = 10;
 
     // Initial conditions of conserved variables rho, rho*u, and rho*e
