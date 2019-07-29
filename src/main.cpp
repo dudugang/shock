@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
         flow.apply_time_integrator();
 
         // Write to file
-        output.write(flow);
+        output.write(flow, i);
 
         // Output information to stdout
         output.print(flow, i);

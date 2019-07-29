@@ -12,6 +12,7 @@ class Inputs {
         double dx;
         double gamma;
         int n_equations;
+        int output_rate;
         vector<double> q_left;
         vector<double> q_right;
 };

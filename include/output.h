@@ -10,5 +10,5 @@ class Output {
         Output(Inputs);
         void print(Flowfield, int);
         void final_print(Flowfield);
-        void write(Flowfield);
+        void write(Flowfield, int);
 };

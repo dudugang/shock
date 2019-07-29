@@ -18,7 +18,7 @@ Output::Output(Inputs inputs) {
 }
 
 
-// Output information after each iteration
+// Output information after iterations
 void Output::print(Flowfield flow, int i) {
 
     cout << "Iteration " << i << ": " << flow.id_to_volume[5]->q[2] << endl;
@@ -40,7 +40,7 @@ void Output::final_print(Flowfield flow) {
 }
 
 // Write results to file for postprocessing
-void Output::write(Flowfield flow) {
+void Output::write(Flowfield flow, int i) {
 
     // Find pressure distribution
     //vector<double> p;
@@ -53,15 +53,19 @@ void Output::write(Flowfield flow) {
     // Find temperature distribution
     //vector<double> temperature = calculate_temperature(q, gamma, r_gas);
 
-    // Write data to solution.dat
-    ofstream solution_file;
-    solution_file.open("solution.dat", std::ios_base::app);
-    solution_file << flow.time << endl;
-    for (auto &volume : flow.volumes) {
-        solution_file << volume->x << " "
-            << volume->q[0] << " " << volume->q[1] << " " << volume->q[2] << " "
-            << endl;
-            //u[i] << " " << temperature[i] << endl;
+    // only output every output_rate iterations
+    if (i % flow.inputs.output_rate == 0) {
+        // Write data to solution.dat
+        ofstream solution_file;
+        solution_file.open("solution.dat", std::ios_base::app);
+        solution_file << flow.time << endl;
+        for (auto &volume : flow.volumes) {
+            solution_file << volume->x << " "
+                << volume->q[0] << " " << volume->q[1] << " " << volume->q[2] << " "
+                << endl;
+                //u[i] << " " << temperature[i] << endl;
+        }
+        solution_file << endl;
     }
-    solution_file << endl;
+
 }

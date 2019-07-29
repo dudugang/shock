@@ -11,6 +11,7 @@ Inputs::Inputs() {
     dx = length/n_cells;
     gamma = 1.4;
     n_equations = 3;
+    output_rate = 10;
 
     // Initial conditions of conserved variables rho, rho*u, and rho*e
     q_left.resize(3);
