@@ -10,10 +10,16 @@ Output::Output(Inputs inputs) {
     // Wipe old solution file
     remove("solution.dat");
 
+    // Calculate total number of file writes: n_iterations / output_rate,
+    // rounded up.
+    // Note: the following is basically just a hacky way of doing ceiling
+    // integer division (i.e. rounding up).
+    int n_writes = (inputs.n_iterations + inputs.output_rate - 1) / inputs.output_rate;
+
     // Write header info
     ofstream solution_file;
     solution_file.open("solution.dat", std::ios_base::app);
-    solution_file << inputs.n_cells << " " << inputs.n_iterations << endl;
+    solution_file << inputs.n_cells << " " << n_writes << endl;
 
 }
 

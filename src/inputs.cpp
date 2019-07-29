@@ -4,8 +4,8 @@
 Inputs::Inputs() {
 
     // Parameters
-    dt = .0000005;
-    n_cells = 400;
+    dt = .000001;
+    n_cells = 200;
     n_iterations = 2000;
     length = 1;
     dx = length/n_cells;
