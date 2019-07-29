@@ -11,6 +11,7 @@ Flowfield::Flowfield(Inputs inputs) {
     this->inputs = inputs;
 
     // Create initial conditions
+    vector<double> center;
     for (int i = 0; i < inputs.n_cells; i++) {
 
         // Choose right or left of shock tube
@@ -23,13 +24,13 @@ Flowfield::Flowfield(Inputs inputs) {
         }
 
         // Find cell center
-        double x = i*inputs.dx + inputs.dx/2;
+        center = {i*inputs.dx + inputs.dx/2, .05};
 
         // Vector of cell neighbor IDs
         vector<Volume*> neighbors{id_to_volume[i-1], id_to_volume[i+1]};
 
         // Create cell and add to map/set of cells
-        Cell *current_cell = new Cell(x, q, i, neighbors, nullptr, nullptr);
+        Cell *current_cell = new Cell(center, q, i, neighbors, nullptr, nullptr);
         id_to_volume[i] = current_cell;
         cells.insert(current_cell);
         volumes.insert(current_cell);
@@ -37,14 +38,15 @@ Flowfield::Flowfield(Inputs inputs) {
     }
 
     // Add ghost cells
-    Ghost *left_ghost  = new Ghost(-inputs.dx/2, inputs.q_left, -1,
+    center = {-inputs.dx/2, .05};
+    Ghost *left_ghost  = new Ghost(center, inputs.q_left, -1,
         vector<Volume*>{id_to_volume[0]}, nullptr, nullptr);
     id_to_volume[-1] = left_ghost;
     ghosts.insert(left_ghost);
     volumes.insert(left_ghost);
-    Ghost *right_ghost = new Ghost(inputs.n_cells*inputs.dx + inputs.dx/2,
-        inputs.q_right, inputs.n_cells, vector<Volume*>{id_to_volume[inputs.n_cells-1]},
-        nullptr, nullptr);
+    center = {inputs.n_cells*inputs.dx + inputs.dx/2, .05};
+    Ghost *right_ghost = new Ghost(center, inputs.q_right, inputs.n_cells,
+        vector<Volume*>{id_to_volume[inputs.n_cells-1]}, nullptr, nullptr);
     id_to_volume[inputs.n_cells] = right_ghost;
     ghosts.insert(right_ghost);
     volumes.insert(right_ghost);

@@ -18,8 +18,10 @@ Inputs::Inputs() {
     q_right.resize(3);
     q_left[0]  = 1.5;
     q_left[1]  = 0.00001;
-    q_left[2]  = 3.7e6;
+    q_left[2]  = 0.00001;
+    q_left[3]  = 3.7e6;
     q_right[0] = 1;
     q_right[1] = 0.00001;
-    q_right[2] = 2.5e6;
+    q_right[2] = 0.00001;
+    q_right[3] = 2.5e6;
 }
