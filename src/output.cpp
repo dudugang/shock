@@ -66,7 +66,7 @@ void Output::write(Flowfield flow, int i) {
         solution_file.open("solution.dat", std::ios_base::app);
         solution_file << flow.time << endl;
         for (auto &volume : flow.volumes) {
-            solution_file << volume->x << " "
+            solution_file << volume->center[0] << " " << volume->center[1] << " "
                 << volume->q[0] << " " << volume->q[1] << " " << volume->q[2] << " "
                 << endl;
                 //u[i] << " " << temperature[i] << endl;

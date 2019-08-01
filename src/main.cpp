@@ -9,7 +9,8 @@ int main(int argc, char* argv[]) {
 
     // Get inputs
     Inputs inputs;
-
+    inputs.read_mesh();
+/*
     // Initialize output
     Output output(inputs);
 
@@ -38,6 +39,6 @@ int main(int argc, char* argv[]) {
 
     // Output results
     output.final_print(flow);
-
+*/
     return 0;
 }
