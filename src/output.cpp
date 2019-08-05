@@ -5,7 +5,7 @@ using std::ofstream;
 
 
 // Constructor
-Output::Output(Inputs inputs) {
+Output::Output(Inputs inputs, int n_cells) {
 
     // Wipe old solution file
     remove("solution.dat");
@@ -19,7 +19,7 @@ Output::Output(Inputs inputs) {
     // Write header info
     ofstream solution_file;
     solution_file.open("solution.dat", std::ios_base::app);
-    solution_file << inputs.n_cells << " " << n_writes << endl;
+    solution_file << n_cells << " " << n_writes << endl;
 
 }
 
@@ -66,7 +66,7 @@ void Output::write(Flowfield flow, int i) {
         solution_file.open("solution.dat", std::ios_base::app);
         solution_file << flow.time << endl;
         for (auto &volume : flow.volumes) {
-            solution_file << volume->center[0] << " " << volume->center[1] << " "
+            solution_file << volume->center.x << " " << volume->center.y << " "
                 << volume->q[0] << " " << volume->q[1] << " " << volume->q[2] << " "
                 << endl;
                 //u[i] << " " << temperature[i] << endl;

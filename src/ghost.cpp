@@ -1,11 +1,11 @@
-#include <iostream>
 #include <ghost.h>
+#include <iostream>
 using std::vector;
 
 // Constructor
-Ghost::Ghost(vector<double> center, vector<double> q, int volume_id,
+Ghost::Ghost(vector<Point> vertices, vector<double> q, int volume_id,
     vector<Volume*> neighbors, Face *left_face, Face *right_face)
-    : Volume(center, q, volume_id, neighbors, left_face, right_face) {
+    : Volume(vertices, q, volume_id, neighbors, left_face, right_face) {
     this->type = "ghost";
 }
 

@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <string>
 #include <H5Cpp.h>
@@ -15,6 +16,7 @@ class MeshReader {
         double *x_coords;
         double *y_coords;
         int *connectivity;
+        int n_cells;
     private:
         template<class T>
         T* read_dataset(H5File, string);

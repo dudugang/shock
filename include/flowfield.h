@@ -1,3 +1,4 @@
+#pragma once
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
@@ -6,6 +7,7 @@
 #include <flux.h>
 #include <ghost.h>
 #include <inputs.h>
+#include <mesh_reader.h>
 using std::vector;
 using std::unordered_map;
 using std::unordered_set;
@@ -14,7 +16,7 @@ using std::unordered_set;
 // functions on flowfield cells.
 class Flowfield {
     public:
-        Flowfield(Inputs);
+        Flowfield(Inputs, MeshReader);
         void calculate_flux(Flux&);
         void apply_time_integrator();
         Inputs inputs;
@@ -24,5 +26,6 @@ class Flowfield {
         unordered_set<Face*> faces;
         unordered_map<int, Volume*> id_to_volume;
         unordered_map<int, Face*> id_to_face;
+        int n_cells;
         double time;
 };

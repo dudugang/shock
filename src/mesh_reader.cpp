@@ -33,18 +33,19 @@ void MeshReader::read_mesh() {
             string x_coords_path = "/Base/dom-1/GridCoordinates/CoordinateX/\ data";
             string y_coords_path = "/Base/dom-1/GridCoordinates/CoordinateY/\ data";
             string connectivity_path = "/Base/dom-1/QuadElements/ElementConnectivity/\ data";
+            string range_path = "/Base/dom-1/QuadElements/ElementRange/\ data";
             x_coords = read_dataset<double>(file, x_coords_path);
             y_coords = read_dataset<double>(file, y_coords_path);
             connectivity = read_dataset<int>(file, connectivity_path);
+            int *range = read_dataset<int>(file, range_path);
+            n_cells = range[1];
             // x_coords and y_coords give coordinates of nodes in mesh.
             // connectivity gives node IDs of 4 nodes per cell ID, so the first
             // 4 numbers are the 4 node IDs of cell 1, the second 4 numbers are
             // the 4 node IDs of cell 2, etc.
         }
 
-
     }
-
 
 }
 

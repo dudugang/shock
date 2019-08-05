@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <string>
 #include <vector>
@@ -12,10 +13,8 @@ class Inputs {
         Inputs();
         void read_mesh();
         double dt;
-        int n_cells;
         int n_iterations;
         double length;
-        double dx;
         double gamma;
         int n_equations;
         int output_rate;

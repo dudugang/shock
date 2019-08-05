@@ -1,36 +1,50 @@
+#include <flowfield.h>
 #include <cmath>
 #include <iostream>
 #include <vector>
-#include <flowfield.h>
 using std::cout;
 using std::endl;
 using std::vector;
 
-Flowfield::Flowfield(Inputs inputs) {
+// Constructor
+Flowfield::Flowfield(Inputs inputs, MeshReader mesh_reader) {
+
     // Store inputs
+    // TODO: Get rid of Inputs in Flowfield entirely
     this->inputs = inputs;
 
+    // Get number of cells from the mesh
+    n_cells = mesh_reader.n_cells;
+
     // Create initial conditions
-    vector<double> center;
-    for (int i = 0; i < inputs.n_cells; i++) {
+    vector<Point> vertices;
+    vector<int> vertex_ids;
+    for (int i = 0; i < n_cells; i++) {
 
-        // Choose right or left of shock tube
-        vector<double> q;
-        // Shock
-        if (i < inputs.n_cells/2) {
-            q = inputs.q_left;
-        } else {
-            q = inputs.q_right;
-        }
+        // Find vertices of current cell from mesh connectivity
+        vertex_ids = {mesh_reader.connectivity[4*i],
+                      mesh_reader.connectivity[4*i + 1],
+                      mesh_reader.connectivity[4*i + 2],
+                      mesh_reader.connectivity[4*i + 3]};
 
-        // Find cell center
-        center = {i*inputs.dx + inputs.dx/2, .05};
+        // Constructor points from vertex IDs, remembering that the connectivity
+        // is 1-indexed while C++ is 0-indexed
+        vertices = {Point(mesh_reader.x_coords[vertex_ids[0] - 1],
+                          mesh_reader.y_coords[vertex_ids[0] - 1], i),
+                    Point(mesh_reader.x_coords[vertex_ids[1] - 1],
+                          mesh_reader.y_coords[vertex_ids[1] - 1], i),
+                    Point(mesh_reader.x_coords[vertex_ids[2] - 1],
+                          mesh_reader.y_coords[vertex_ids[2] - 1], i),
+                    Point(mesh_reader.x_coords[vertex_ids[3] - 1],
+                          mesh_reader.y_coords[vertex_ids[3] - 1], i)};
 
         // Vector of cell neighbor IDs
         vector<Volume*> neighbors{id_to_volume[i-1], id_to_volume[i+1]};
 
         // Create cell and add to map/set of cells
-        Cell *current_cell = new Cell(center, q, i, neighbors, nullptr, nullptr);
+        // All cells are initialized to q_right for now.
+        // TODO: Initialize cells with volume conditions
+        Cell *current_cell = new Cell(vertices, inputs.q_right, i, neighbors, nullptr, nullptr);
         id_to_volume[i] = current_cell;
         cells.insert(current_cell);
         volumes.insert(current_cell);
@@ -38,35 +52,34 @@ Flowfield::Flowfield(Inputs inputs) {
     }
 
     // Add ghost cells
-    center = {-inputs.dx/2, .05};
-    Ghost *left_ghost  = new Ghost(center, inputs.q_left, -1,
-        vector<Volume*>{id_to_volume[0]}, nullptr, nullptr);
-    id_to_volume[-1] = left_ghost;
-    ghosts.insert(left_ghost);
-    volumes.insert(left_ghost);
-    center = {inputs.n_cells*inputs.dx + inputs.dx/2, .05};
-    Ghost *right_ghost = new Ghost(center, inputs.q_right, inputs.n_cells,
-        vector<Volume*>{id_to_volume[inputs.n_cells-1]}, nullptr, nullptr);
-    id_to_volume[inputs.n_cells] = right_ghost;
-    ghosts.insert(right_ghost);
-    volumes.insert(right_ghost);
+    //Ghost *left_ghost  = new Ghost(center, inputs.q_left, -1,
+    //    vector<Volume*>{id_to_volume[0]}, nullptr, nullptr);
+    //id_to_volume[-1] = left_ghost;
+    //ghosts.insert(left_ghost);
+    //volumes.insert(left_ghost);
+    //center = {inputs.n_cells*inputs.dx + inputs.dx/2, .05};
+    //Ghost *right_ghost = new Ghost(center, inputs.q_right, inputs.n_cells,
+    //    vector<Volume*>{id_to_volume[inputs.n_cells-1]}, nullptr, nullptr);
+    //id_to_volume[inputs.n_cells] = right_ghost;
+    //ghosts.insert(right_ghost);
+    //volumes.insert(right_ghost);
 
-    // Create faces of cells and assign neighbor information
-    for (int i = 0; i < inputs.n_cells + 1; i++) {
-        // Useful points
-        Volume *left_cell = id_to_volume[i-1];
-        Volume *right_cell = id_to_volume[i];
-        // Geometric information
-        // TODO: Import this somehow instead of hardcoding
-        vector<double> point1{i*inputs.dx, .1};
-        vector<double> point2{i*inputs.dx, 0};
-        Face *current_face = new Face(i, left_cell, right_cell, point1, point2);
-        id_to_face[i] = current_face;
-        faces.insert(current_face);
-        // Inform neighbor cells of their new face
-        left_cell->right_face = current_face;
-        right_cell->left_face = current_face;
-    }
+    //// Create faces of cells and assign neighbor information
+    //for (int i = 0; i < inputs.n_cells + 1; i++) {
+    //    // Useful points
+    //    Volume *left_cell = id_to_volume[i-1];
+    //    Volume *right_cell = id_to_volume[i];
+    //    // Geometric information
+    //    // TODO: Import this somehow instead of hardcoding
+    //    vector<double> point1{i*inputs.dx, .1};
+    //    vector<double> point2{i*inputs.dx, 0};
+    //    Face *current_face = new Face(i, left_cell, right_cell, point1, point2);
+    //    id_to_face[i] = current_face;
+    //    faces.insert(current_face);
+    //    // Inform neighbor cells of their new face
+    //    left_cell->right_face = current_face;
+    //    right_cell->left_face = current_face;
+    //}
 
     // Start from time 0
     time = 0;
@@ -134,11 +147,11 @@ void Flowfield::apply_time_integrator() {
     // For every pair of cells and cell IDs, apply the time integrator
     for (auto &cell : cells) {
 
-        // Apply to every equation
-        for (int i = 0; i < inputs.n_equations; i++) {
-            cell->q[i] = cell->q[i] - (inputs.dt/inputs.dx)
-                * (cell->right_face->flux[i] - cell->left_face->flux[i]);
-        }
+        //// Apply to every equation
+        //for (int i = 0; i < inputs.n_equations; i++) {
+        //    cell->q[i] = cell->q[i] - (inputs.dt/inputs.dx)
+        //        * (cell->right_face->flux[i] - cell->left_face->flux[i]);
+        //}
         // Update time
         time = time + inputs.dt;
 

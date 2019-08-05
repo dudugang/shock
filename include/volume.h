@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <point.h>
 using std::string;
 using std::vector;
 
@@ -12,8 +13,9 @@ class Face;
 // variables, as well as its cell ID and the cell IDs of its neighbors.
 class Volume {
     public:
-        Volume(vector<double>, vector<double>, int, vector<Volume*>, Face*, Face*);
-        vector<double> center;
+        Volume(vector<Point>, vector<double>, int, vector<Volume*>, Face*, Face*);
+        Point center;
+        vector<Point> vertices;
         vector<double> q;
         int volume_id;
         vector<Volume*> neighbors;

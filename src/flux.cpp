@@ -1,7 +1,7 @@
+#include <flux.h>
 #include <cmath>
 #include <iostream>
 #include <vector>
-#include <flux.h>
 using std::sqrt;
 using std::vector;
 

@@ -14,12 +14,13 @@ int main(int argc, char* argv[]) {
     // Read in mesh
     MeshReader mesh_reader(inputs.mesh_file);
     mesh_reader.read_mesh();
-/*
-    // Initialize output
-    Output output(inputs);
 
     // Initialize flowfield
-    Flowfield flow(inputs);
+    Flowfield flow(inputs, mesh_reader);
+
+    // Initialize output
+    Output output(inputs, flow.n_cells);
+/*
 
     // Initialize fluxes
     Flux flux;
