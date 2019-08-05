@@ -1,8 +1,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <H5Cpp.h>
-using namespace H5;
 using std::cout;
 using std::endl;
 using std::string;
@@ -21,6 +19,7 @@ class Inputs {
         double gamma;
         int n_equations;
         int output_rate;
+        string mesh_file;
         vector<double> q_left;
         vector<double> q_right;
 };

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <mesh_reader.h>
 #include <output.h>
 using std::cout;
 using std::endl;
@@ -9,7 +10,10 @@ int main(int argc, char* argv[]) {
 
     // Get inputs
     Inputs inputs;
-    inputs.read_mesh();
+
+    // Read in mesh
+    MeshReader mesh_reader(inputs.mesh_file);
+    mesh_reader.read_mesh();
 /*
     // Initialize output
     Output output(inputs);
