@@ -5,13 +5,11 @@ using std::endl;
 using std::vector;
 
 // Constructor
-Volume::Volume(vector<Point> vertices, vector<double> q, int volume_id,
-    vector<Volume*> neighbors, Face *left_face, Face *right_face) {
+Volume::Volume(vector<Point> vertices, vector<double> q, vector<Face*> faces,
+    int volume_id) {
     cout << "Creating volume with ID " << volume_id << endl;
     this->vertices = vertices;
     this->q = q;
+    this->faces = faces;
     this->volume_id = volume_id;
-    this->neighbors = neighbors;
-    this->left_face = left_face;
-    this->right_face = right_face;
 }

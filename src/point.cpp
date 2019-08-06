@@ -1,11 +1,10 @@
 #include <point.h>
 
 // Constructor
-Point::Point(double x, double y, int point_id) {
+Point::Point(double x, double y) {
 
     this->x = x;
     this->y = y;
-    this->point_id = point_id;
 
 }
 

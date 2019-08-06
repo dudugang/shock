@@ -13,14 +13,12 @@ class Face;
 // variables, as well as its cell ID and the cell IDs of its neighbors.
 class Volume {
     public:
-        Volume(vector<Point>, vector<double>, int, vector<Volume*>, Face*, Face*);
+        Volume(vector<Point>, vector<double>, vector<Face*>, int);
         Point center;
         vector<Point> vertices;
         vector<double> q;
+        vector<Face*> faces;
         int volume_id;
-        vector<Volume*> neighbors;
-        Face *left_face;
-        Face *right_face;
         string type;
         virtual void update() = 0;
 };

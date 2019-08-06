@@ -9,6 +9,6 @@ using std::vector;
 // used during either space and time integration.
 class Cell : public Volume {
     public:
-        Cell(vector<Point>, vector<double>, int, vector<Volume*>, Face*, Face*);
+        Cell(vector<Point>, vector<double>, vector<Face*>, int);
         void update();
 };

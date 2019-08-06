@@ -3,9 +3,8 @@
 using std::vector;
 
 // Constructor
-Cell::Cell(vector<Point> vertices, vector<double> q, int volume_id,
-    vector<Volume*> neighbors, Face *left_face, Face *right_face)
-    : Volume(vertices, q, volume_id, neighbors, left_face, right_face) {
+Cell::Cell(vector<Point> vertices, vector<double> q, vector<Face*> faces,
+    int volume_id) : Volume(vertices, q, faces, volume_id) {
     this->type = "flow";
 }
 

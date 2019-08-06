@@ -21,33 +21,18 @@ Flowfield::Flowfield(Inputs inputs, MeshReader mesh_reader) {
     vector<int> vertex_ids;
     for (int i = 0; i < n_cells; i++) {
 
-        // Find vertices of current cell from mesh connectivity
-        vertex_ids = {mesh_reader.connectivity[4*i],
-                      mesh_reader.connectivity[4*i + 1],
-                      mesh_reader.connectivity[4*i + 2],
-                      mesh_reader.connectivity[4*i + 3]};
-
-        // Constructor points from vertex IDs, remembering that the connectivity
-        // is 1-indexed while C++ is 0-indexed
-        vertices = {Point(mesh_reader.x_coords[vertex_ids[0] - 1],
-                          mesh_reader.y_coords[vertex_ids[0] - 1], i),
-                    Point(mesh_reader.x_coords[vertex_ids[1] - 1],
-                          mesh_reader.y_coords[vertex_ids[1] - 1], i),
-                    Point(mesh_reader.x_coords[vertex_ids[2] - 1],
-                          mesh_reader.y_coords[vertex_ids[2] - 1], i),
-                    Point(mesh_reader.x_coords[vertex_ids[3] - 1],
-                          mesh_reader.y_coords[vertex_ids[3] - 1], i)};
-
         // Vector of cell neighbor IDs
         vector<Volume*> neighbors{id_to_volume[i-1], id_to_volume[i+1]};
 
         // Create cell and add to map/set of cells
         // All cells are initialized to q_right for now.
-        // TODO: Initialize cells with volume conditions
+        // TODO: Initialize cells with volume conditions and fix all this
+        /*
         Cell *current_cell = new Cell(vertices, inputs.q_right, i, neighbors, nullptr, nullptr);
         id_to_volume[i] = current_cell;
         cells.insert(current_cell);
         volumes.insert(current_cell);
+        */
 
     }
 
