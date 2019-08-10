@@ -25,6 +25,7 @@ class MeshReader {
         int n_cells;
         unordered_map<int, Point> vertices;
         unordered_map<int, Cell*> cells;
+
     private:
         void read_hdf5();
         template<class T>

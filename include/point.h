@@ -8,6 +8,7 @@ class Point {
     public:
         Point(double, double);
         Point();
+        bool operator== (const Point &p);
         double x;
         double y;
 

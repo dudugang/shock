@@ -1,9 +1,10 @@
 #pragma once
 #include <iostream>
 #include <cmath>
+#include <unordered_set>
 #include <vector>
 #include <point.h>
-#include <volume.h>
+using std::unordered_set;
 using std::vector;
 
 
@@ -30,6 +31,7 @@ class Face {
         Face(Point, Point);
         vector<double> q_left;
         vector<double> q_right;
+        bool contains(Point, Point);
         Point point1;
         Point point2;
         double theta;

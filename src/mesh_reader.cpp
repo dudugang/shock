@@ -26,6 +26,7 @@ void MeshReader::create_mesh() {
     cell_faces.reserve(4);
     vector<double> q = {0, 0, 0, 0};
     for (int i = 1; i <= n_cells; i++) {
+
         // Find vertices of current cell from mesh connectivity
         cell_nodes = {vertices[connectivity[4*i - 4]],
                       vertices[connectivity[4*i - 3]],
@@ -34,16 +35,12 @@ void MeshReader::create_mesh() {
 
         // Create faces around boundary of current cell
         // TODO: Generalize this to work for other cell shapes
-
         Face *face1 = new Face(cell_nodes[0], cell_nodes[1]);
         cell_faces[0] = face1;
-
         Face *face2 = new Face(cell_nodes[1], cell_nodes[2]);
         cell_faces[1] = face2;
-
         Face *face3 = new Face(cell_nodes[2], cell_nodes[3]);
         cell_faces[2] = face3;
-
         Face *face4 = new Face(cell_nodes[3], cell_nodes[0]);
         cell_faces[3] = face4;
 

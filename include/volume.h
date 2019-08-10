@@ -2,12 +2,10 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <face.h>
 #include <point.h>
 using std::string;
 using std::vector;
-
-// Forward declare Face, since Volume and Face depend on each other
-class Face;
 
 // Class for one cell in the flowfield. Stores geometric data and flowfield
 // variables, as well as its cell ID and the cell IDs of its neighbors.
