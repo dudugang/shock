@@ -1,5 +1,6 @@
 #include <point.h>
 
+
 // Constructor
 Point::Point(double x, double y) {
 

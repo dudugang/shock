@@ -1,9 +1,4 @@
 #include <flux.h>
-#include <cmath>
-#include <iostream>
-#include <vector>
-using std::sqrt;
-using std::vector;
 
 
 // Constructor

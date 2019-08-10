@@ -4,6 +4,8 @@
 #include <vector>
 #include <face.h>
 #include <point.h>
+using std::cout;
+using std::endl;
 using std::string;
 using std::vector;
 

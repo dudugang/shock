@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <H5Cpp.h>
 #include <cell.h>
+#include <ghost.h>
 #include <point.h>
 using namespace H5;
 using std::cout;
@@ -25,6 +26,8 @@ class MeshReader {
         int n_cells;
         unordered_map<int, Point> vertices;
         unordered_map<int, Cell*> cells;
+        unordered_map<int, Ghost*> ghosts;
+        unordered_set<Face*> faces;
 
     private:
         void read_hdf5();
@@ -33,4 +36,6 @@ class MeshReader {
         double *x_coords;
         double *y_coords;
         int *connectivity;
+        unordered_map<string, int*> bc_connectivity;
+        unordered_map<string, int> bc_faces;
 };

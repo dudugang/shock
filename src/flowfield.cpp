@@ -1,10 +1,5 @@
 #include <flowfield.h>
-#include <cmath>
-#include <iostream>
-#include <vector>
-using std::cout;
-using std::endl;
-using std::vector;
+
 
 // Constructor
 Flowfield::Flowfield(Inputs inputs, MeshReader mesh_reader) {

@@ -1,6 +1,4 @@
 #include <face.h>
-using std::cout;
-using std::endl;
 
 
 // Constructor

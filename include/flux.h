@@ -1,5 +1,8 @@
 #pragma once
+#include <cmath>
+#include <iostream>
 #include <vector>
+using std::sqrt;
 using std::vector;
 
 // Class containing static methods for computing fluxes between cells.

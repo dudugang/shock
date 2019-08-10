@@ -1,7 +1,4 @@
 #include <output.h>
-using std::cout;
-using std::endl;
-using std::ofstream;
 
 
 // Constructor
