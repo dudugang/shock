@@ -17,24 +17,24 @@ Flowfield::Flowfield(Inputs inputs, MeshReader mesh_reader) {
     n_cells = mesh_reader.n_cells;
 
     // Create initial conditions
-    vector<Point> vertices;
-    vector<int> vertex_ids;
-    for (int i = 0; i < n_cells; i++) {
-
-        // Vector of cell neighbor IDs
-        vector<Volume*> neighbors{id_to_volume[i-1], id_to_volume[i+1]};
-
-        // Create cell and add to map/set of cells
-        // All cells are initialized to q_right for now.
-        // TODO: Initialize cells with volume conditions and fix all this
-        /*
-        Cell *current_cell = new Cell(vertices, inputs.q_right, i, neighbors, nullptr, nullptr);
-        id_to_volume[i] = current_cell;
-        cells.insert(current_cell);
-        volumes.insert(current_cell);
-        */
-
-    }
+//    vector<Point> vertices;
+//    vector<int> vertex_ids;
+//    for (int i = 0; i < n_cells; i++) {
+//
+//        // Vector of cell neighbor IDs
+//        vector<Volume*> neighbors{id_to_volume[i-1], id_to_volume[i+1]};
+//
+//        // Create cell and add to map/set of cells
+//        // All cells are initialized to q_right for now.
+//        // TODO: Initialize cells with volume conditions and fix all this
+//        /*
+//        Cell *current_cell = new Cell(vertices, inputs.q_right, i, neighbors, nullptr, nullptr);
+//        id_to_volume[i] = current_cell;
+//        cells.insert(current_cell);
+//        volumes.insert(current_cell);
+//        */
+//
+//    }
 
     // Add ghost cells
     //Ghost *left_ghost  = new Ghost(center, inputs.q_left, -1,
@@ -74,7 +74,7 @@ Flowfield::Flowfield(Inputs inputs, MeshReader mesh_reader) {
 
 // Calculate fluxes through every face in domain
 void Flowfield::calculate_flux(Flux &flux) {
-
+/*
     // For every pair of face IDs and faces, calculate the flux through each
     // of the faces
     vector<double> q_left;
@@ -122,7 +122,7 @@ void Flowfield::calculate_flux(Flux &flux) {
         face->flux[3] = flux_rotated[3];
 
     }
-
+*/
 }
 
 

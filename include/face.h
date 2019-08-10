@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
+#include <point.h>
 #include <volume.h>
 using std::vector;
 
@@ -26,12 +27,11 @@ using std::vector;
 // picture above shows a face with negative theta).
 class Face {
     public:
-        Face(int, Volume*, Volume*, vector<double>, vector<double>);
-        int face_id;
-        Volume *left_volume;
-        Volume *right_volume;
-        vector<double> point1;
-        vector<double> point2;
+        Face(Point, Point);
+        vector<double> q_left;
+        vector<double> q_right;
+        Point point1;
+        Point point2;
         double theta;
         double sintheta;
         double costheta;

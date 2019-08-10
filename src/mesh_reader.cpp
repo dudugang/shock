@@ -20,41 +20,38 @@ void MeshReader::create_mesh() {
     }
 
     // Loop over every cell in mesh
+    vector<Point> cell_nodes;
+    vector<Face*> cell_faces;
+    cell_nodes.reserve(4);
+    cell_faces.reserve(4);
+    vector<double> q = {0, 0, 0, 0};
     for (int i = 1; i <= n_cells; i++) {
+        // Find vertices of current cell from mesh connectivity
+        cell_nodes = {vertices[connectivity[4*i - 4]],
+                      vertices[connectivity[4*i - 3]],
+                      vertices[connectivity[4*i - 2]],
+                      vertices[connectivity[4*i - 1]]};
 
         // Create faces around boundary of current cell
+        // TODO: Generalize this to work for other cell shapes
+
+        Face *face1 = new Face(cell_nodes[0], cell_nodes[1]);
+        cell_faces[0] = face1;
+
+        Face *face2 = new Face(cell_nodes[1], cell_nodes[2]);
+        cell_faces[1] = face2;
+
+        Face *face3 = new Face(cell_nodes[2], cell_nodes[3]);
+        cell_faces[2] = face3;
+
+        Face *face4 = new Face(cell_nodes[3], cell_nodes[0]);
+        cell_faces[3] = face4;
 
         // Add cell to mapping
-        //cells[i] = Cell(
+        cells[i] = new Cell(cell_nodes, q, cell_faces, i);
+
     }
 
-//        // Find vertices of current cell from mesh connectivity
-//        vertex_ids = {mesh_reader.connectivity[4*i],
-//                      mesh_reader.connectivity[4*i + 1],
-//                      mesh_reader.connectivity[4*i + 2],
-//                      mesh_reader.connectivity[4*i + 3]};
-//
-//        // Constructor points from vertex IDs, remembering that the connectivity
-//        // is 1-indexed while C++ is 0-indexed
-//        vertices = {Point(mesh_reader.x_coords[vertex_ids[0] - 1],
-//                          mesh_reader.y_coords[vertex_ids[0] - 1], i),
-//                    Point(mesh_reader.x_coords[vertex_ids[1] - 1],
-//                          mesh_reader.y_coords[vertex_ids[1] - 1], i),
-//                    Point(mesh_reader.x_coords[vertex_ids[2] - 1],
-//                          mesh_reader.y_coords[vertex_ids[2] - 1], i),
-//                    Point(mesh_reader.x_coords[vertex_ids[3] - 1],
-//                          mesh_reader.y_coords[vertex_ids[3] - 1], i)};
-//
-//        // Vector of cell neighbor IDs
-//        vector<Volume*> neighbors{id_to_volume[i-1], id_to_volume[i+1]};
-//
-//        // Create cell and add to map/set of cells
-//        // All cells are initialized to q_right for now.
-//        // TODO: Initialize cells with volume conditions
-//        Cell *current_cell = new Cell(vertices, inputs.q_right, i, neighbors, nullptr, nullptr);
-//        id_to_volume[i] = current_cell;
-//        cells.insert(current_cell);
-//        volumes.insert(current_cell);
 
 //    }
 
@@ -70,23 +67,6 @@ void MeshReader::create_mesh() {
     //id_to_volume[inputs.n_cells] = right_ghost;
     //ghosts.insert(right_ghost);
     //volumes.insert(right_ghost);
-
-    //// Create faces of cells and assign neighbor information
-    //for (int i = 0; i < inputs.n_cells + 1; i++) {
-    //    // Useful points
-    //    Volume *left_cell = id_to_volume[i-1];
-    //    Volume *right_cell = id_to_volume[i];
-    //    // Geometric information
-    //    // TODO: Import this somehow instead of hardcoding
-    //    vector<double> point1{i*inputs.dx, .1};
-    //    vector<double> point2{i*inputs.dx, 0};
-    //    Face *current_face = new Face(i, left_cell, right_cell, point1, point2);
-    //    id_to_face[i] = current_face;
-    //    faces.insert(current_face);
-    //    // Inform neighbor cells of their new face
-    //    left_cell->right_face = current_face;
-    //    right_cell->left_face = current_face;
-    //}
 
 }
 

@@ -1,5 +1,7 @@
 #pragma once
+#include <utility>
 #include <iostream>
+#include <map>
 #include <string>
 #include <unordered_map>
 #include <H5Cpp.h>
@@ -8,6 +10,8 @@
 using namespace H5;
 using std::cout;
 using std::endl;
+using std::map;
+using std::pair;
 using std::string;
 using std::unordered_map;
 
@@ -20,7 +24,7 @@ class MeshReader {
         int n_nodes;
         int n_cells;
         unordered_map<int, Point> vertices;
-        unordered_map<int, Cell> cells;
+        unordered_map<int, Cell*> cells;
     private:
         void read_hdf5();
         template<class T>
