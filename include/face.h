@@ -3,6 +3,7 @@
 #include <cmath>
 #include <unordered_set>
 #include <vector>
+#include <geometry.h>
 #include <point.h>
 using std::unordered_set;
 using std::vector;
@@ -34,6 +35,7 @@ class Face {
         bool contains(Point, Point);
         Point point1;
         Point point2;
+        Point center;
         double theta;
         double sintheta;
         double costheta;

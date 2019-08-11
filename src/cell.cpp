@@ -9,7 +9,13 @@ Cell::Cell(vector<Point> vertices, vector<double> q, vector<Face*> faces,
 
     // Calculate cell center, assuming quadrilateral cells
     // TODO: Stop assuming quadrilateral cells
-    //center =
+    center = Geometry::find_quad_centroid(vertices[0], vertices[1], vertices[2],
+        vertices[3]);
+
+    // Calculate cell volume
+    volume = Geometry::find_quad_area(vertices[0], vertices[1], vertices[2],
+        vertices[3]);
+
 }
 
 void Cell::update() {}

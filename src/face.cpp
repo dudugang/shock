@@ -18,6 +18,9 @@ Face::Face(Point point1, Point point2) {
     q_left.resize(4);
     q_right.resize(4);
 
+    // Find centroid of face
+    center = Geometry::find_midpoint(point1, point2);
+
     // Calculate angle of normal vector, using sign conventions illustrated in
     // the header file for this class
     double dx = point1.x - point2.x;

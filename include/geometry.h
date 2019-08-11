@@ -15,5 +15,8 @@ class Geometry {
     public:
         static Point find_triangle_centroid(Point, Point, Point);
         static Point find_quad_centroid(Point, Point, Point, Point);
+        static double find_quad_area(Point, Point, Point, Point);
+        static double find_triangle_area(Point, Point, Point);
+        static Point find_midpoint(Point, Point);
 
 };

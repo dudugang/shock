@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <face.h>
+#include <geometry.h>
 #include <point.h>
 #include <volume.h>
 using std::vector;
