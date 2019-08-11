@@ -35,9 +35,11 @@ class MeshReader {
         void read_hdf5();
         template<class T>
         T* read_dataset(H5File, string);
+        void read_dataset_contents(int*, DataSet, DataSpace, DataSpace);
+        void read_dataset_contents(double*, DataSet, DataSpace, DataSpace);
         double *x_coords;
         double *y_coords;
         int *connectivity;
         unordered_map<string, int*> bc_connectivity;
-        unordered_map<string, int> bc_faces;
+        unordered_map<string, int> bc_face_count;
 };

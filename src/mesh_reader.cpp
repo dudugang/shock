@@ -47,27 +47,26 @@ void MeshReader::create_mesh() {
             // Get midpoint of vertices
             Point midpoint = Geometry::find_midpoint(vertex1, vertex2);
 
-            // Check if face already exists by comparing midpoints
-            bool face_exists;
+            // Check if face already exists by looping over every face and
+            // comparing midpoints
+            bool face_exists = false;
             for (auto &face : faces) {
                 if (face->center == midpoint) {
                     face_exists = true;
+                    // If face already exists, add it to list of cell's faces
+                    cell_faces[face_index] = face;
                     break;
                 }
             }
-            // If the face does already exists, stop here - don't duplicate
-            // faces
-            if (face_exists) {
-                break;
-            } else {
 
+            // Only create face if it doesn't already exist
+            if (not face_exists) {
                 // Create face
                 cell_faces[face_index] = new Face(vertex1, vertex2);
-
-                // Add current cell to list of neighbors
-                cell_faces[face_index]->neighbors.push_back(i);
-
             }
+
+            // Add current cell to face's list of neighbors
+            cell_faces[face_index]->neighbors.push_back(i);
 
         }
 
@@ -90,17 +89,31 @@ void MeshReader::create_mesh() {
         int *conn = pair.second;
 
         // Loop over every face in boundary
-        for (int i = 0; i < bc_faces[name]; i++) {
+        for (int i = 0; i < bc_face_count[name]; i++) {
 
             // Pointer to boundary face
             Face *boundary_face;
 
-            // Search for existing face that has the same nodes, and assign the
-            // boundary face to be the same as that face
+            // Search for existing face that has the same midpoint, then set
+            // boundary face to be the same as that face, and add this ghost as
+            // a neighbor to the face
+            Point midpoint = Geometry::find_midpoint(vertices[conn[2*i]], vertices[conn[2*i+1]]);
+            cout << "Boundary node IDs: " << conn[i] << "    " << conn[i+1] << endl;
+            bool found_face = false;
             for (auto &face : faces) {
-                if (face->contains(vertices[conn[i]], vertices[conn[i+1]])) {
+                if (face->center == midpoint) {
                     boundary_face = face;
+                    boundary_face->neighbors.push_back(ghost_id);
+                    found_face = true;
                     break;
+                }
+            }
+            if (not found_face) {
+                cout << "No face found to match boundary!" << endl;
+                cout << "Desired midpoint: " << midpoint.x << "    " <<  midpoint.y << endl;
+                cout << "Available face centers: " << endl;
+                for (auto &face : faces) {
+                    cout << face->center.x << "    " << face->center.y << endl;
                 }
             }
 
@@ -164,7 +177,7 @@ void MeshReader::read_hdf5() {
             string bc_range_path = "/Base/dom-1/" + name + "/ElementRange/\ data";
             bc_connectivity[name] = read_dataset<int>(file, bc_connectivity_path);
             int *bc_range = read_dataset<int>(file, bc_range_path);
-            bc_faces[name] = bc_range[1] - bc_range[0] + 1;
+            bc_face_count[name] = bc_range[1] - bc_range[0] + 1;
         }
 
     }
@@ -191,9 +204,21 @@ T* MeshReader::read_dataset(H5File file, string path) {
 
     // Read data into array
     T *data = new T[dimensions[0]];
-    dataset.read(data, PredType::NATIVE_INT, memspace, dataspace);
+    read_dataset_contents(data, dataset, memspace, dataspace);
 
     // Return data
     return data;
 
+}
+
+
+// Read integers from an HDF5 dataset
+void MeshReader::read_dataset_contents(int *data, DataSet dataset, DataSpace memspace, DataSpace dataspace) {
+    dataset.read(data, PredType::NATIVE_INT, memspace, dataspace);
+}
+
+
+// Read doubles from an HDF5 dataset
+void MeshReader::read_dataset_contents(double *data, DataSet dataset, DataSpace memspace, DataSpace dataspace) {
+    dataset.read(data, PredType::NATIVE_DOUBLE, memspace, dataspace);
 }

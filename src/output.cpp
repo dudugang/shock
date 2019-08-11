@@ -36,7 +36,7 @@ void Output::final_print(Flowfield flow) {
     cout << "Solution:" << endl;
     for (auto &pair : flow.cells) {
         Cell* cell = pair.second;
-        cout << "Volume ID " << cell->volume_id << ": " << cell->q[0] << ", "
+        cout << "Volume ID " << cell->id << ": " << cell->q[0] << ", "
              << cell->q[1] << ", " << cell->q[2] << endl;
     }
     cout << endl;
