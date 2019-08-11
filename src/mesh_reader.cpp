@@ -74,6 +74,7 @@ void MeshReader::create_mesh() {
             }
 
             // Some random nodes for the ghost, since ghost nodes don't matter
+            // TODO: Is this actually true?
             vector<Point> nodes(4, Point(0,0));
             // Put face in vector
             vector<Face*> boundary_faces = {boundary_face};
@@ -84,18 +85,6 @@ void MeshReader::create_mesh() {
         }
 
     }
-//    // Add ghost cells
-//    Ghost *left_ghost  = new Ghost(center, inputs.q_left, -1,
-//        vector<Volume*>{id_to_volume[0]}, nullptr, nullptr);
-//    id_to_volume[-1] = left_ghost;
-//    ghosts.insert(left_ghost);
-//    volumes.insert(left_ghost);
-//    center = {inputs.n_cells*inputs.dx + inputs.dx/2, .05};
-//    Ghost *right_ghost = new Ghost(center, inputs.q_right, inputs.n_cells,
-//        vector<Volume*>{id_to_volume[inputs.n_cells-1]}, nullptr, nullptr);
-//    id_to_volume[inputs.n_cells] = right_ghost;
-//    ghosts.insert(right_ghost);
-//    volumes.insert(right_ghost);
 
 }
 

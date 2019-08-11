@@ -8,8 +8,15 @@ class Point {
     public:
         Point(double, double);
         Point();
-        bool operator== (const Point &p);
         double x;
         double y;
 
 };
+
+
+// Free functions for operator overloads
+bool operator== (const Point&, const Point&);
+Point operator+ (const Point&, const Point&);
+Point operator- (const Point&, const Point&);
+Point operator* (const Point&, const double&);
+Point operator/ (const Point&, const double&);

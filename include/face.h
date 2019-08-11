@@ -37,6 +37,6 @@ class Face {
         double theta;
         double sintheta;
         double costheta;
-        double ds;
+        double area;
         vector<double> flux;
 };

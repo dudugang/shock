@@ -20,7 +20,6 @@ int main(int argc, char* argv[]) {
 
     // Initialize output
     Output output(inputs, flow.n_cells);
-/*
 
     // Initialize fluxes
     Flux flux;
@@ -31,8 +30,12 @@ int main(int argc, char* argv[]) {
         // Calculate fluxes
         flow.calculate_flux(flux);
 
+        // Reconstruct flowfield
+        flow.apply_reconstruction();
+
         // Integrate in time
         flow.apply_time_integrator();
+/*
 
         // Write to file
         output.write(flow, i);
@@ -40,10 +43,10 @@ int main(int argc, char* argv[]) {
         // Output information to stdout
         output.print(flow, i);
 
+*/
     }
 
     // Output results
-    output.final_print(flow);
-*/
+    //output.final_print(flow);
     return 0;
 }

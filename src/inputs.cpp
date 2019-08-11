@@ -6,7 +6,7 @@ Inputs::Inputs() {
 
     // Parameters
     dt = .000001;
-    n_iterations = 2000;
+    n_iterations = 5;
     length = 1;
     gamma = 1.4;
     n_equations = 4;

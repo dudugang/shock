@@ -20,14 +20,12 @@ class Flowfield {
     public:
         Flowfield(Inputs, MeshReader);
         void calculate_flux(Flux&);
+        void apply_reconstruction();
         void apply_time_integrator();
         Inputs inputs;
-        unordered_set<Volume*> volumes;
-        unordered_set<Cell*> cells;
-        unordered_set<Ghost*> ghosts;
+        unordered_map<int, Cell*> cells;
+        unordered_map<int, Ghost*> ghosts;
         unordered_set<Face*> faces;
-        unordered_map<int, Volume*> id_to_volume;
-        unordered_map<int, Face*> id_to_face;
         int n_cells;
         double time;
 };

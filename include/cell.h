@@ -11,4 +11,5 @@ class Cell : public Volume {
     public:
         Cell(vector<Point>, vector<double>, vector<Face*>, int);
         void update();
+        Point center;
 };

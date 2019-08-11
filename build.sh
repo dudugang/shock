@@ -6,4 +6,4 @@ make clean
 make -j8
 make test -j8
 # Test
-bin/flowtest
+bin/shocktest
