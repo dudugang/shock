@@ -90,8 +90,16 @@ void Flowfield::apply_reconstruction() {
 
         // Loop over every face in the cell
         for (auto &face : cell->faces) {
-            //if (
-            //face
+
+            // Find angle from horizontal between cell center and face point
+            double angle = std::atan2(face->center.y - cell->center.y,
+                face->center.x - cell->center.x);
+
+            // Check if face normal vector points into cell or out of cell
+            if (std::abs(angle - face->theta) < 90) {
+
+            }
+
         }
 
     }

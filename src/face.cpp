@@ -17,6 +17,7 @@ Face::Face(Point point1, Point point2) {
     flux.resize(4);
     q_left.resize(4);
     q_right.resize(4);
+    neighbors.reserve(2);
 
     // Find centroid of face
     center = Geometry::find_midpoint(point1, point2);

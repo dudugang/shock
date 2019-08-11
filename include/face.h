@@ -1,11 +1,9 @@
 #pragma once
-#include <iostream>
 #include <cmath>
-#include <unordered_set>
+#include <iostream>
 #include <vector>
 #include <geometry.h>
 #include <point.h>
-using std::unordered_set;
 using std::vector;
 
 
@@ -30,9 +28,10 @@ using std::vector;
 class Face {
     public:
         Face(Point, Point);
+        bool contains(Point, Point);
         vector<double> q_left;
         vector<double> q_right;
-        bool contains(Point, Point);
+        vector<int> neighbors;
         Point point1;
         Point point2;
         Point center;

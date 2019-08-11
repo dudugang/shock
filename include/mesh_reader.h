@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <H5Cpp.h>
 #include <cell.h>
 #include <ghost.h>
@@ -15,6 +16,7 @@ using std::map;
 using std::pair;
 using std::string;
 using std::unordered_map;
+using std::unordered_set;
 
 class MeshReader {
     // TODO: Add destructor for everything in here to prevent memory leaks

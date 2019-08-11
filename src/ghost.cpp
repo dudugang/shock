@@ -3,9 +3,9 @@
 
 // Constructor
 Ghost::Ghost(vector<Point> vertices, vector<double> q, vector<Face*> faces,
-    int ghost_id) : Volume(vertices, q, faces, ghost_id) {
+    int id) : Volume(vertices, q, faces, id) {
     this->type = "ghost";
-    cout << "Creating ghost with ID " << volume_id << endl;
+    cout << "Creating ghost with ID " << id << endl;
 }
 
 

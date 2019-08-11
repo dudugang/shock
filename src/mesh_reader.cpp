@@ -33,12 +33,43 @@ void MeshReader::create_mesh() {
                       vertices[connectivity[4*i - 2]],
                       vertices[connectivity[4*i - 1]]};
 
-        // Create faces around boundary of current cell
+        // Create faces around boundary of current cell, and add cell to list of
+        // face's neighbors
         // TODO: Generalize this to work for other cell shapes
-        cell_faces[0] = new Face(cell_nodes[0], cell_nodes[1]);
-        cell_faces[1] = new Face(cell_nodes[1], cell_nodes[2]);
-        cell_faces[2] = new Face(cell_nodes[2], cell_nodes[3]);
-        cell_faces[3] = new Face(cell_nodes[3], cell_nodes[0]);
+        for (int face_index = 0; face_index < 4; face_index++) {
+
+            // Find current face vertices. The mod operator is used so that the
+            // last face loops back to the beginning of the list and uses
+            // cell_nodes[3] and cell_nodes[0].
+            Point vertex1 = cell_nodes[face_index % 4];
+            Point vertex2 = cell_nodes[(face_index + 1) % 4];
+
+            // Get midpoint of vertices
+            Point midpoint = Geometry::find_midpoint(vertex1, vertex2);
+
+            // Check if face already exists by comparing midpoints
+            bool face_exists;
+            for (auto &face : faces) {
+                if (face->center == midpoint) {
+                    face_exists = true;
+                    break;
+                }
+            }
+            // If the face does already exists, stop here - don't duplicate
+            // faces
+            if (face_exists) {
+                break;
+            } else {
+
+                // Create face
+                cell_faces[face_index] = new Face(vertex1, vertex2);
+
+                // Add current cell to list of neighbors
+                cell_faces[face_index]->neighbors.push_back(i);
+
+            }
+
+        }
 
         // Add cell to mapping
         cells[i] = new Cell(cell_nodes, q, cell_faces, i);

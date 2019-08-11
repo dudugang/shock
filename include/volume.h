@@ -18,7 +18,7 @@ class Volume {
         vector<Point> vertices;
         vector<double> q;
         vector<Face*> faces;
-        int volume_id;
+        int id;
         double volume;
         string type;
         virtual void update() = 0;
