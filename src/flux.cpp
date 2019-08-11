@@ -62,14 +62,14 @@ vector<double> Flux::steger_warming(vector<double> q_left,
 
     // Split eigenvalues. Keep positive eigenvalues from the left, and negative
     // eigenvalues from the right.
-    for (int i = 0; i < eigvalues_l.size(); i++) {
+    for (unsigned int i = 0; i < eigvalues_l.size(); i++) {
         if (eigvalues_l[i] > 0) {
             eig_split_l[i] = eigvalues_l[i];
         } else {
             eig_split_l[i] = 0;
         }
     }
-    for (int i = 0; i < eigvalues_r.size(); i++) {
+    for (unsigned int i = 0; i < eigvalues_r.size(); i++) {
         if (eigvalues_r[i] < 0) {
             eig_split_r[i] = eigvalues_r[i];
         } else {
@@ -100,7 +100,7 @@ vector<double> Flux::steger_warming(vector<double> q_left,
         (gamma-1)*(u_r*u_r)*eig_split_r[1] + (h_r + u_r*a_r)*eig_split_r[2] );
 
     // Add left and right fluxes to get resultant flux through face
-    for (int i = 0; i < total_flux.size(); i++) {
+    for (unsigned int i = 0; i < total_flux.size(); i++) {
         total_flux[i] = flux_l[i] + flux_r[i];
     }
 

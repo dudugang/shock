@@ -32,6 +32,7 @@ Face::Face(Point point1, Point point2) {
     sintheta = dy/area;
     costheta = dx/area;
     theta = std::atan2(sintheta, costheta);
+
 }
 
 

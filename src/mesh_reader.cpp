@@ -98,22 +98,11 @@ void MeshReader::create_mesh() {
             // boundary face to be the same as that face, and add this ghost as
             // a neighbor to the face
             Point midpoint = Geometry::find_midpoint(vertices[conn[2*i]], vertices[conn[2*i+1]]);
-            cout << "Boundary node IDs: " << conn[i] << "    " << conn[i+1] << endl;
-            bool found_face = false;
             for (auto &face : faces) {
                 if (face->center == midpoint) {
                     boundary_face = face;
                     boundary_face->neighbors.push_back(ghost_id);
-                    found_face = true;
                     break;
-                }
-            }
-            if (not found_face) {
-                cout << "No face found to match boundary!" << endl;
-                cout << "Desired midpoint: " << midpoint.x << "    " <<  midpoint.y << endl;
-                cout << "Available face centers: " << endl;
-                for (auto &face : faces) {
-                    cout << face->center.x << "    " << face->center.y << endl;
                 }
             }
 
@@ -140,10 +129,10 @@ void MeshReader::read_hdf5() {
     H5File file(mesh_file, H5F_ACC_RDONLY);
 
     // Get mesh information from domain
-    string x_coords_path = "/Base/dom-1/GridCoordinates/CoordinateX/\ data";
-    string y_coords_path = "/Base/dom-1/GridCoordinates/CoordinateY/\ data";
-    string connectivity_path = "/Base/dom-1/QuadElements/ElementConnectivity/\ data";
-    string range_path = "/Base/dom-1/\ data";
+    string x_coords_path = "/Base/dom-1/GridCoordinates/CoordinateX/ data";
+    string y_coords_path = "/Base/dom-1/GridCoordinates/CoordinateY/ data";
+    string connectivity_path = "/Base/dom-1/QuadElements/ElementConnectivity/ data";
+    string range_path = "/Base/dom-1/ data";
     x_coords = read_dataset<double>(file, x_coords_path);
     y_coords = read_dataset<double>(file, y_coords_path);
     connectivity = read_dataset<int>(file, connectivity_path);
@@ -160,21 +149,21 @@ void MeshReader::read_hdf5() {
     Group domain = file.openGroup(domain_path);
 
     // Loop over every object inside the domain group
-    for (int i = 0; i < domain.getNumObjs(); i++) {
+    for (unsigned int i = 0; i < domain.getNumObjs(); i++) {
 
         // Access object name using current iteration index
         string name = domain.getObjnameByIdx(i);
 
         // Ignore the following groups.
-        unordered_set<string> ignore = {"\ data", "FamilyName", "GridCoordinates",
+        unordered_set<string> ignore = {" data", "FamilyName", "GridCoordinates",
             "QuadElements", "ZoneBC", "ZoneType"};
         if (ignore.find(name) != ignore.end()) {
             continue;
 
         // Get boundary conditions
         } else {
-            string bc_connectivity_path = "/Base/dom-1/" + name + "/ElementConnectivity/\ data";
-            string bc_range_path = "/Base/dom-1/" + name + "/ElementRange/\ data";
+            string bc_connectivity_path = "/Base/dom-1/" + name + "/ElementConnectivity/ data";
+            string bc_range_path = "/Base/dom-1/" + name + "/ElementRange/ data";
             bc_connectivity[name] = read_dataset<int>(file, bc_connectivity_path);
             int *bc_range = read_dataset<int>(file, bc_range_path);
             bc_face_count[name] = bc_range[1] - bc_range[0] + 1;
