@@ -16,6 +16,11 @@ Flowfield::Flowfield(Inputs inputs, MeshReader mesh_reader) {
     ghosts = mesh_reader.ghosts;
     faces  = mesh_reader.faces;
 
+    // Calculate face normal vectors
+    for (auto &face : faces) {
+        face->find_normal_vector(cells, ghosts, n_cells);
+    }
+
     // Start from time 0
     time = 0;
 
@@ -83,23 +88,22 @@ void Flowfield::apply_reconstruction() {
     // Assume 1D reconstruction
     // TODO: Stop assuming 1D reconstruction
     // Loop over every cell
-    for (auto &pair : cells) {
+    for (auto &face : faces) {
 
-        // Define convenient pointer
-        Cell* cell = pair.second;
+        // Reference to neighbor cell ID's, in increasing order
+        int &smaller_id = face->neighbors[0];
+        int &larger_id  = face->neighbors[1];
 
-        // Loop over every face in the cell
-        for (auto &face : cell->faces) {
-
-            // Find angle from horizontal between cell center and face point
-            double angle = std::atan2(face->center.y - cell->center.y,
-                face->center.x - cell->center.x);
-
-            // Check if face normal vector points into cell or out of cell
-            if (std::abs(angle - face->theta) < 90) {
-
-            }
-
+        // Check if id is for a Ghost or for a Cell, then update accordingly
+        if (smaller_id > n_cells) {
+            face->q_left  = ghosts[smaller_id]->q;
+        } else {
+            face->q_left = cells[smaller_id]->q;
+        }
+        if (larger_id > n_cells) {
+            face->q_right  = ghosts[larger_id]->q;
+        } else {
+            face->q_right = cells[larger_id]->q;
         }
 
     }
@@ -114,18 +118,33 @@ void Flowfield::apply_time_integrator() {
     for (auto &pair : cells) {
 
         // Define convenient pointer
+        int id = pair.first;
         Cell* cell = pair.second;
 
         // Apply to every equation
         double flux_integral;
         double coefficient;
         for (int i = 0; i < inputs.n_equations; i++) {
+
+            // Coefficient in front of flux integral
             coefficient = - (inputs.dt/cell->volume);
+
             // Integrate flux over every cell face
             for (auto &face : cell->faces) {
-                flux_integral += face->flux[i] * face->area;
+
+                // If normal vector of face points away from cell, then flux is
+                // positive
+                if (id == face->neighbors[0]) {
+                    flux_integral += face->flux[i] * face->area;
+                } else {
+                    flux_integral -= face->flux[i] * face->area;
+                }
+
             }
+
+            // Integate in time
             cell->q[i] += coefficient * flux_integral;
+
         }
 
         // Update time
@@ -133,9 +152,14 @@ void Flowfield::apply_time_integrator() {
 
     }
 
-    // Update ghost cells
-    for (auto &ghost : ghosts) {
-        //ghost->update();
-    }
+}
 
+
+// Update ghost cells according to flowfield cells
+void Flowfield::update_ghosts() {
+    for (auto &pair : ghosts) {
+        // pair contains the ghost ID in pair.first and a pointer to the ghost
+        // in pair.second
+        pair.second->update(inputs, cells);
+    }
 }

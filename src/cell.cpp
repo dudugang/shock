@@ -1,4 +1,5 @@
 #include <cell.h>
+#include <face.h>
 
 
 // Constructor
@@ -17,5 +18,3 @@ Cell::Cell(vector<Point> vertices, vector<double> q, vector<Face*> faces,
         vertices[3]);
 
 }
-
-void Cell::update() {}

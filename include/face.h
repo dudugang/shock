@@ -1,11 +1,19 @@
 #pragma once
+#include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <unordered_map>
 #include <vector>
 #include <geometry.h>
 #include <point.h>
+using std::unordered_map;
 using std::vector;
 
+
+// Forward declare this since Face, Cell, and Ghost all depend on each other
+class Volume;
+class Cell;
+class Ghost;
 
 // Faces are 1D lines for 2D volumes and look something like this:
 //
@@ -28,6 +36,8 @@ using std::vector;
 class Face {
     public:
         Face(Point, Point);
+        void find_normal_vector(unordered_map<int, Cell*>&,
+            unordered_map<int, Ghost*>&, int);
         bool contains(Point, Point);
         vector<double> q_left;
         vector<double> q_right;

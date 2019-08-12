@@ -22,6 +22,7 @@ class Flowfield {
         void calculate_flux(Flux&);
         void apply_reconstruction();
         void apply_time_integrator();
+        void update_ghosts();
         Inputs inputs;
         unordered_map<int, Cell*> cells;
         unordered_map<int, Ghost*> ghosts;

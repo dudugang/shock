@@ -1,4 +1,5 @@
 #include <volume.h>
+#include <face.h>
 
 
 // Constructor

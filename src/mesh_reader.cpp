@@ -1,4 +1,7 @@
 #include <mesh_reader.h>
+#include <cell.h>
+#include <face.h>
+#include <ghost.h>
 
 
 // Constructor
@@ -111,8 +114,10 @@ void MeshReader::create_mesh() {
             vector<Point> nodes(4, Point(0,0));
             // Put face in vector
             vector<Face*> boundary_faces = {boundary_face};
-            // Create ghost cell and add to map
+            // Create ghost cell, add to map, and save boundary condition name
             ghosts[ghost_id] = new Ghost(nodes, q, boundary_faces, ghost_id);
+            ghosts[ghost_id]->type = name;
+
             ghost_id++;
 
         }

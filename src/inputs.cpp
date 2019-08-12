@@ -13,6 +13,12 @@ Inputs::Inputs() {
     output_rate = 10;
     mesh_file = "wedge_test.cgns";
 
+    // Boundary conditions
+    bc["in"] = BC::inflow;
+    bc["out"] = BC::wall;
+    bc["sym"] = BC::wall;
+    bc["wedge"] = BC::wall;
+
     // Initial conditions of conserved variables rho, rho*u, and rho*e
     q_left.resize(4);
     q_right.resize(4);

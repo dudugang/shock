@@ -6,8 +6,6 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <H5Cpp.h>
-#include <cell.h>
-#include <ghost.h>
 #include <point.h>
 using namespace H5;
 using std::cout;
@@ -17,6 +15,11 @@ using std::pair;
 using std::string;
 using std::unordered_map;
 using std::unordered_set;
+
+// Forward declare
+class Cell;
+class Ghost;
+class Face;
 
 class MeshReader {
     // TODO: Add destructor for everything in here to prevent memory leaks

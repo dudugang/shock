@@ -1,4 +1,6 @@
 #include <face.h>
+#include <cell.h>
+#include <ghost.h>
 
 
 // Constructor
@@ -22,16 +24,58 @@ Face::Face(Point point1, Point point2) {
     // Find centroid of face
     center = Geometry::find_midpoint(point1, point2);
 
-    // Calculate angle of normal vector, using sign conventions illustrated in
-    // the header file for this class
+}
+
+
+// Calculate the angle of the normal vector for a face, making sure that the
+// vector points towards the cell with the higher cell ID.
+void Face::find_normal_vector(unordered_map<int, Cell*> &cells,
+    unordered_map<int, Ghost*> &ghosts, int n_cells) {
+
+    // Find area. This is just the length of the line segment between the two
+    // points, since this code is 2D (for now).
     double dx = point1.x - point2.x;
     double dy = point1.y - point2.y;
-    // Area is just the length of the line segment between the two points, since
-    // this code is 2D (for now).
     area = std::sqrt(dx*dx + dy*dy);
+
+    // Find one of the possible normal vector angles
     sintheta = dy/area;
     costheta = dx/area;
-    theta = std::atan2(sintheta, costheta);
+    double theta1 = std::atan2(sintheta, costheta);
+
+    // Find other possible normal vector angle
+    double theta2 = theta1 + Geometry::pi;
+    // Make sure this doesn't equal or exceed 2pi
+    if (theta2 >= 2*Geometry::pi) {
+        theta2 -= 2*Geometry::pi;
+    }
+
+    // Sort neighbor ID's from small to large
+    std::sort(neighbors.begin(), neighbors.end());
+    // Get larger of the two neighbor cell ID's
+    int id = neighbors[1];
+
+    // Get cell center
+    Point cell_center;
+    if (id > n_cells) {
+        cell_center = ghosts[id]->center;
+    } else {
+        cell_center = cells[id]->center;
+    }
+
+    // Get angle between x-axis and the line connecting the cell center and the
+    // face center
+    double theta_cell = std::atan2(center.y - cell_center.y, center.x - cell_center.x);
+
+    // Choose the theta that gives a normal vector pointing towards the cell
+    // with larger cell ID. This is done by choosing the theta which maximizes
+    // the difference between the normal vector angle and the angle between the
+    // cell and face with respect to the x-axis.
+    if (std::abs(theta_cell - theta1) > std::abs(theta_cell - theta2)) {
+        theta = theta1;
+    } else {
+        theta = theta2;
+    }
 
 }
 

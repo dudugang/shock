@@ -2,12 +2,14 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <face.h>
 #include <point.h>
 using std::cout;
 using std::endl;
 using std::string;
 using std::vector;
+
+// Forward declare
+class Face;
 
 // Class for one cell in the flowfield. Stores geometric data and flowfield
 // variables, as well as its cell ID and the cell IDs of its neighbors.
@@ -21,5 +23,4 @@ class Volume {
         int id;
         double volume;
         string type;
-        virtual void update() = 0;
 };
