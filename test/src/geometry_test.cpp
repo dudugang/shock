@@ -94,3 +94,28 @@ TEST(find_midpoint_test, ShouldGiveZeroForLineAroundOrigin) {
     ASSERT_NEAR(midpoint_correct.y, midpoint.y, error);
 
 }
+
+
+TEST(angle_between_test, ShouldGiveAngleBetweenForEasyAngles) {
+
+    // Create test data
+    double alpha1 = 0;
+    double beta1  = 0;
+    double alpha2 = 0;
+    double beta2  = .75*Geometry::pi;
+    double alpha3 = (1/6)*Geometry::pi;
+    double beta3  = (2/3)*Geometry::pi;
+    double difference1 = Geometry::angle_between(alpha1, beta1);
+    double difference2 = Geometry::angle_between(alpha2, beta2);
+    double difference3 = Geometry::angle_between(alpha3, beta3);
+    double difference_correct1 = 0;
+    double difference_correct2 = .75*Geometry::pi;
+    double difference_correct3 = (7/12)*Geometry::pi;
+
+    // Test
+    double error = 1e-8;
+    ASSERT_NEAR(difference_correct1, difference1, error);
+    ASSERT_NEAR(difference_correct2, difference2, error);
+    ASSERT_NEAR(difference_correct3, difference3, error);
+
+}

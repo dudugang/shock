@@ -76,7 +76,8 @@ void Face::find_normal_vector(unordered_map<int, Cell*> &cells,
     // with larger cell ID. This is done by choosing the theta which minimizes
     // the difference between the normal vector angle and the angle between the
     // cell and face with respect to the x-axis.
-    if (std::abs(theta_cell - theta1) < std::abs(theta_cell - theta2)) {
+    if (Geometry::angle_between(theta_cell, theta1)
+            < Geometry::angle_between(theta_cell, theta2)) {
         theta = theta1;
     } else {
         theta = theta2;

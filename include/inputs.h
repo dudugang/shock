@@ -23,6 +23,4 @@ class Inputs {
         int output_rate;
         string mesh_file;
         unordered_map<string, BC> bc;
-        vector<double> q_left;
-        vector<double> q_right;
 };

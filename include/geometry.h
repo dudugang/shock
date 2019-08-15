@@ -19,6 +19,7 @@ class Geometry {
         static double find_quad_area(Point, Point, Point, Point);
         static double find_triangle_area(Point, Point, Point);
         static Point find_midpoint(Point, Point);
+        static double angle_between(double, double);
         static constexpr double pi = 3.141592653589793238462643;
 
 };

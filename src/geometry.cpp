@@ -82,3 +82,20 @@ Point Geometry::find_midpoint(Point a, Point b) {
     return (a + b) / 2.0;
 
 }
+
+
+// Find the angle between two vectors defined by their angles from a common
+// axis.
+double Geometry::angle_between(double alpha, double beta) {
+
+    // Get difference in angles
+    double difference = std::abs(alpha - beta);
+
+    // Difference can not be greater than pi radians, since after pi radians of
+    // rotation the two vectors start getting close to each other, not further
+    // away.
+    if (difference > pi) {
+        difference = difference - 2*(difference - pi);
+    }
+
+}
