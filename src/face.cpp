@@ -32,6 +32,22 @@ Face::Face(Point point1, Point point2) {
 void Face::find_normal_vector(unordered_map<int, Cell*> &cells,
     unordered_map<int, Ghost*> &ghosts, int n_cells) {
 
+    // Sort neighbor ID's from small to large
+    std::sort(neighbors.begin(), neighbors.end());
+    // Get smaller of the two neighbor cell ID's
+    int id = neighbors[0];
+
+    // Get cell center of whichever cell has the lowest cell ID. The reason why
+    // lowest was chosen instead of highest is because ghost cells always have a
+    // higher cell ID than flow cells, which would be a problem since the
+    // geometry of a ghost cell is never defined, since it doesn't need to be.
+    Point cell_center;
+    if (id <= n_cells) {
+        cell_center = cells[id]->center;
+    } else {
+        cell_center = ghosts[id]->center;
+    }
+
     // Find area. This is just the length of the line segment between the two
     // points, since this code is 2D (for now).
     double dx = point1.x - point2.x;
@@ -39,9 +55,7 @@ void Face::find_normal_vector(unordered_map<int, Cell*> &cells,
     area = std::sqrt(dx*dx + dy*dy);
 
     // Find one of the possible normal vector angles
-    sintheta = dy/area;
-    costheta = dx/area;
-    double theta1 = std::atan2(sintheta, costheta);
+    double theta1 = std::atan2(dy, dx) + Geometry::pi/2;
 
     // Find other possible normal vector angle
     double theta2 = theta1 + Geometry::pi;
@@ -50,32 +64,27 @@ void Face::find_normal_vector(unordered_map<int, Cell*> &cells,
         theta2 -= 2*Geometry::pi;
     }
 
-    // Sort neighbor ID's from small to large
-    std::sort(neighbors.begin(), neighbors.end());
-    // Get larger of the two neighbor cell ID's
-    int id = neighbors[1];
-
-    // Get cell center
-    Point cell_center;
-    if (id > n_cells) {
-        cell_center = ghosts[id]->center;
-    } else {
-        cell_center = cells[id]->center;
+    // Get angle between x-axis and the line connecting the chosen cell center
+    // and the face center
+    double theta_cell = std::atan2(center.y - cell_center.y, center.x - cell_center.x);
+    // Make sure it's not negative
+    if (theta_cell < 0) {
+        theta_cell += 2*Geometry::pi;
     }
 
-    // Get angle between x-axis and the line connecting the cell center and the
-    // face center
-    double theta_cell = std::atan2(center.y - cell_center.y, center.x - cell_center.x);
-
     // Choose the theta that gives a normal vector pointing towards the cell
-    // with larger cell ID. This is done by choosing the theta which maximizes
+    // with larger cell ID. This is done by choosing the theta which minimizes
     // the difference between the normal vector angle and the angle between the
     // cell and face with respect to the x-axis.
-    if (std::abs(theta_cell - theta1) > std::abs(theta_cell - theta2)) {
+    if (std::abs(theta_cell - theta1) < std::abs(theta_cell - theta2)) {
         theta = theta1;
     } else {
         theta = theta2;
     }
+
+    // Store sin(theta) and cos(theta) for convenience
+    sintheta = std::sin(theta);
+    costheta = std::cos(theta);
 
 }
 

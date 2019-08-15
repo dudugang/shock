@@ -27,7 +27,10 @@ void MeshReader::create_mesh() {
     vector<Face*> cell_faces;
     cell_nodes.resize(4);
     cell_faces.resize(4);
-    vector<double> q = {0, 0, 0, 0}; // TODO: Initialize with ICs from hdf5 file
+
+    double p = 1e6;
+    double gamma = 1.4;
+    vector<double> q = {1.225, 0, 0, p/(gamma-1)}; // TODO: Initialize with ICs from hdf5 file
     for (int i = 1; i <= n_cells; i++) {
 
         // Find vertices of current cell from mesh connectivity

@@ -27,8 +27,11 @@ int main(int argc, char* argv[]) {
     // Initialize fluxes
     Flux flux;
 
+    // Write initial conditions to file
+    output.write(flow, 0);
+
     // Main loop: run flux function and time integrator for every iteration
-    for (int i = 0; i < inputs.n_iterations; i++) {
+    for (int i = 1; i <= inputs.n_iterations; i++) {
 
         // Reconstruct flowfield
         flow.apply_reconstruction();
@@ -38,7 +41,6 @@ int main(int argc, char* argv[]) {
 
         // Integrate in time
         flow.apply_time_integrator();
-/*
 
         // Write to file
         output.write(flow, i);
@@ -46,7 +48,6 @@ int main(int argc, char* argv[]) {
         // Output information to stdout
         output.print(flow, i);
 
-*/
     }
 
     // Output results

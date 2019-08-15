@@ -28,7 +28,21 @@ void Ghost::update(Inputs &inputs, unordered_map<int, Cell*> &cells) {
 }
 
 
+// Update ghost cell with an inflow boundary condition.
+// TODO: Make this not hardcoded
 void Ghost::update_inflow(unordered_map<int, Cell*> &cells) {
+
+    double rho = 1.225;
+    double u = 0;
+    double v = 0;
+    double p = 1e6;
+    double gamma = 1.4;
+
+    q[0] = rho;
+    q[1] = rho * u;
+    q[2] = rho * v;
+    q[3] = p/(gamma-1) + (1/2)*rho*(u*u + v*v);
+
 }
 
 
@@ -45,9 +59,17 @@ void Ghost::update_wall(unordered_map<int, Cell*> &cells) {
 
     // Keep mass and energy the same as its neighbor
     q[0] =  neighbor->q[0];
-    q[3] =  neighbor->q[2];
+    q[3] =  neighbor->q[3];
 
-    q[1] = -neighbor->q[1];
-    q[2] = -neighbor->q[1];
+    // Keep tangential momentum the same, but flip the sign of normal momentum.
+    // This is actually somewhat nontrivial and I do not gaurantee that this is
+    // correct.
+    // TODO: Test this very well
+    double &sintheta = faces[0]->sintheta;
+    double &costheta = faces[0]->costheta;
+    double &q1 = neighbor->q[1];
+    double &q2 = neighbor->q[2];
+    q[1] = 2*q2*costheta*sintheta + q1*(sintheta*sintheta - costheta*costheta);
+    q[2] = q[1]*costheta/sintheta + q1*costheta/sintheta - q2;
 
 }

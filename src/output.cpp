@@ -8,10 +8,10 @@ Output::Output(Inputs inputs, int n_cells) {
     remove("solution.dat");
 
     // Calculate total number of file writes: n_iterations / output_rate,
-    // rounded up.
+    // rounded up, plus one (since initial conditions always written).
     // Note: the following is basically just a hacky way of doing ceiling
     // integer division (i.e. rounding up).
-    int n_writes = (inputs.n_iterations + inputs.output_rate - 1) / inputs.output_rate;
+    int n_writes = (inputs.n_iterations + inputs.output_rate - 1) / inputs.output_rate + 1;
 
     // Write header info
     ofstream solution_file;
@@ -24,7 +24,7 @@ Output::Output(Inputs inputs, int n_cells) {
 // Output information after iterations
 void Output::print(Flowfield flow, int i) {
 
-    cout << "Iteration " << i << ": " << flow.cells[5]->q[2] << endl;
+    //cout << "Iteration " << i << ": " << flow.cells[5]->q[0] << endl;
 
 }
 
@@ -46,18 +46,7 @@ void Output::final_print(Flowfield flow) {
 // Write results to file for postprocessing
 void Output::write(Flowfield flow, int i) {
 
-    // Find pressure distribution
-    //vector<double> p;
-    //p.resize(n_cells + n_ghosts);
-    //for (int i = 0; i < (n_cells + n_ghosts); i++) {
-    //    p[i] = calculate_pressure(q[i], gamma);
-    //}
-    // Find u distribution
-    //vector<double> u = calculate_u(q, gamma);
-    // Find temperature distribution
-    //vector<double> temperature = calculate_temperature(q, gamma, r_gas);
-
-    // only output every output_rate iterations
+    // Only output every output_rate iterations
     if (i % flow.inputs.output_rate == 0) {
         // Write data to solution.dat
         ofstream solution_file;
@@ -67,8 +56,7 @@ void Output::write(Flowfield flow, int i) {
             Cell* cell = pair.second;
             solution_file << cell->center.x << " " << cell->center.y << " "
                 << cell->q[0] << " " << cell->q[1] << " " << cell->q[2] << " "
-                << endl;
-                //u[i] << " " << temperature[i] << endl;
+                << cell->q[3] << endl;
         }
         solution_file << endl;
     }

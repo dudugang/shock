@@ -121,13 +121,12 @@ void Flowfield::apply_time_integrator() {
         int id = pair.first;
         Cell* cell = pair.second;
 
+        // Coefficient in front of flux integral
+        double coefficient = -(inputs.dt/cell->volume);
+
         // Apply to every equation
         double flux_integral;
-        double coefficient;
         for (int i = 0; i < inputs.n_equations; i++) {
-
-            // Coefficient in front of flux integral
-            coefficient = - (inputs.dt/cell->volume);
 
             // Integrate flux over every cell face
             for (auto &face : cell->faces) {
@@ -151,6 +150,9 @@ void Flowfield::apply_time_integrator() {
         time = time + inputs.dt;
 
     }
+
+    // Update ghost cells to new time
+    update_ghosts();
 
 }
 

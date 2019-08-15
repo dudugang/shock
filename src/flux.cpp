@@ -81,23 +81,23 @@ vector<double> Flux::steger_warming(vector<double> q_left,
     double coefficient_l = q1_l/(2*gamma);
     double coefficient_r = q1_r/(2*gamma);
     // Calculate left fluxes
-    flux_l[0] = coefficient_l * ( eig_split_l[0] +
-        2*(gamma-1)*eig_split_l[1] + eig_split_l[2] );
-    flux_l[1] = coefficient_l * ( (u_l-a_l)*eig_split_l[0] +
-        2*(gamma-1)*u_l*eig_split_l[1] + (u_l+a_l)*eig_split_l[2] );
-    flux_l[2] = coefficient_l * ( v_l*eig_split_l[0] +
-        2*(gamma-1)*v_l*eig_split_l[1] + v_l*eig_split_l[2] );
-    flux_l[3] = coefficient_l * ( (h_l - u_l*a_l)*eig_split_l[0] +
-        (gamma-1)*(u_l*u_l)*eig_split_l[1] + (h_l + u_l*a_l)*eig_split_l[2] );
+    flux_l[0] = coefficient_l * ( eig_split_l[0]
+        + 2*(gamma-1)*eig_split_l[1] + eig_split_l[3] );
+    flux_l[1] = coefficient_l * ( (u_l-a_l)*eig_split_l[0]
+        + 2*(gamma-1)*u_l*eig_split_l[1] + (u_l+a_l)*eig_split_l[3] );
+    flux_l[2] = coefficient_l * ( v_l*eig_split_l[0]
+        + 2*(gamma-1)*v_l*eig_split_l[1] + v_l*eig_split_l[3] );
+    flux_l[3] = coefficient_l * ( (h_l - u_l*a_l)*eig_split_l[0]
+        + (gamma-1)*(u_l*u_l)*eig_split_l[1] + (h_l + u_l*a_l)*eig_split_l[3] );
     // Calculate right fluxes
-    flux_r[0] = coefficient_r * ( eig_split_r[0] +
-        2*(gamma-1)*eig_split_r[1] + eig_split_r[2] );
-    flux_r[1] = coefficient_r * ( (u_r-a_r)*eig_split_r[0] +
-        2*(gamma-1)*u_r*eig_split_r[1] + (u_r+a_r)*eig_split_r[2] );
-    flux_r[2] = coefficient_r * ( v_r*eig_split_r[0] +
-        2*(gamma-1)*v_r*eig_split_r[1] + v_r*eig_split_r[2] );
-    flux_r[3] = coefficient_r * ( (h_r - u_r*a_r)*eig_split_r[0] +
-        (gamma-1)*(u_r*u_r)*eig_split_r[1] + (h_r + u_r*a_r)*eig_split_r[2] );
+    flux_r[0] = coefficient_r * ( eig_split_r[0]
+        + 2*(gamma-1)*eig_split_r[1] + eig_split_r[3] );
+    flux_r[1] = coefficient_r * ( (u_r-a_r)*eig_split_r[0]
+        + 2*(gamma-1)*u_r*eig_split_r[1] + (u_r+a_r)*eig_split_r[3] );
+    flux_r[2] = coefficient_r * ( v_r*eig_split_r[0]
+        + 2*(gamma-1)*v_r*eig_split_r[1] + v_r*eig_split_r[3] );
+    flux_r[3] = coefficient_r * ( (h_r - u_r*a_r)*eig_split_r[0]
+        + (gamma-1)*(u_r*u_r)*eig_split_r[1] + (h_r + u_r*a_r)*eig_split_r[3] );
 
     // Add left and right fluxes to get resultant flux through face
     for (unsigned int i = 0; i < total_flux.size(); i++) {
