@@ -18,7 +18,10 @@ void Ghost::update(Inputs &inputs, unordered_map<int, Cell*> &cells) {
     BC boundary_condition = inputs.bc[type];
     switch(boundary_condition) {
         case BC::inflow:
-            update_inflow(cells);
+            update_inflow(inputs);
+            break;
+        case BC::outflow:
+            update_outflow(cells);
             break;
         case BC::wall:
             update_wall(cells);
@@ -29,19 +32,30 @@ void Ghost::update(Inputs &inputs, unordered_map<int, Cell*> &cells) {
 
 
 // Update ghost cell with an inflow boundary condition.
-// TODO: Make this not hardcoded
-void Ghost::update_inflow(unordered_map<int, Cell*> &cells) {
+void Ghost::update_inflow(Inputs &inputs) {
 
-    double rho = 1.225;
-    double u = 0;
-    double v = 0;
-    double p = 1e6;
-    double gamma = 1.4;
+    q[0] = inputs.rho;
+    q[1] = inputs.rho * inputs.u;
+    q[2] = inputs.rho * inputs.v;
+    q[3] = inputs.p/(inputs.gamma-1) + (1/2)*inputs.rho*(inputs.u*inputs.u + inputs.v*inputs.v);
 
-    q[0] = rho;
-    q[1] = rho * u;
-    q[2] = rho * v;
-    q[3] = p/(gamma-1) + (1/2)*rho*(u*u + v*v);
+}
+
+
+// Update ghost cell with an outflow boundary condition.
+// TODO: Make this better
+void Ghost::update_outflow(unordered_map<int, Cell*> &cells) {
+
+    // Find neighbor. A ghost only has one face, so faces[0] retrieves this, and
+    // ghosts always have larger cell ID's than flowfield cells, so neighbors[0]
+    // retreives the neighboring cell ID since neighbors is sorted from small
+    // cell ID to large cell ID.
+    Cell* neighbor = cells[faces[0]->neighbors[0]];
+
+    q[0] = neighbor->q[0];
+    q[1] = neighbor->q[1];
+    q[2] = neighbor->q[2];
+    q[3] = neighbor->q[3];
 
 }
 

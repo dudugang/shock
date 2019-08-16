@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <H5Cpp.h>
+#include <inputs.h>
 #include <point.h>
 using namespace H5;
 using std::cout;
@@ -25,7 +26,7 @@ class MeshReader {
     // TODO: Add destructor for everything in here to prevent memory leaks
     public:
         MeshReader(string);
-        void create_mesh();
+        void create_mesh(Inputs&);
         string mesh_file;
         int n_nodes;
         int n_cells;

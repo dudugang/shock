@@ -76,6 +76,9 @@ void Flowfield::calculate_flux(Flux &flux) {
         face->flux[2] = face->sintheta * flux_rotated[1]
             + face->costheta * flux_rotated[2];
         face->flux[3] = flux_rotated[3];
+        cout << endl;
+        cout << face->center.x << "    " << face->center.y << endl;
+        cout << face->flux[0] << "  " << face->flux[1] << "  " << face->flux[2] << "  " << face->flux[3] << endl;
 
     }
 
@@ -125,7 +128,8 @@ void Flowfield::apply_time_integrator() {
         double coefficient = -(inputs.dt/cell->volume);
 
         // Apply to every equation
-        double flux_integral;
+        vector<double> flux_integral;
+        flux_integral.resize(4);
         for (int i = 0; i < inputs.n_equations; i++) {
 
             // Integrate flux over every cell face
@@ -134,17 +138,18 @@ void Flowfield::apply_time_integrator() {
                 // If normal vector of face points away from cell, then flux is
                 // positive
                 if (id == face->neighbors[0]) {
-                    flux_integral += face->flux[i] * face->area;
+                    flux_integral[i] += face->flux[i] * face->area;
                 } else {
-                    flux_integral -= face->flux[i] * face->area;
+                    flux_integral[i] -= face->flux[i] * face->area;
                 }
 
             }
 
-            // Integate in time
-            cell->q[i] += coefficient * flux_integral;
+            // Integrate in time
+            cell->q[i] += coefficient * flux_integral[i];
 
         }
+        cout << "flux integral: " << flux_integral[0] << "  " << flux_integral[1] << "  " << flux_integral[2] << "  " << flux_integral[3] << endl;
 
         // Update time
         time = time + inputs.dt;
@@ -157,7 +162,7 @@ void Flowfield::apply_time_integrator() {
 }
 
 
-// Update ghost cells according to flowfield cells
+// Update ghost cells according to flowfield cells and inputs
 void Flowfield::update_ghosts() {
     for (auto &pair : ghosts) {
         // pair contains the ghost ID in pair.first and a pointer to the ghost

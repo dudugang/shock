@@ -16,19 +16,18 @@ lines  = [x.strip() for x in lines]
 numbers = [int(i) for i in lines[0].split()]
 n_cells = numbers[0]
 n_times = numbers[1]
-n_ghosts = 2;
-n_variables = 4; # Number of variables, including x
-plotting_index = 3 # Index to be plotted
+n_variables = 6; # Number of variables, including x and y
+plotting_index = 2 # Index to be plotted
 
 # Initialize arrays
-data = np.zeros((n_cells + n_ghosts, n_variables, n_times))
+data = np.zeros((n_cells, n_variables, n_times))
 times = np.zeros(n_times)
 
 # Load data into data array
 for n in range(0,n_times):
-    times[n] = float(lines[1 + n*(n_cells + n_ghosts + 2)])
-    for i in range(0,n_cells + n_ghosts):
-        string = lines[2 + n*(n_cells + n_ghosts + 2) + i]
+    times[n] = float(lines[1 + n*(n_cells + 2)])
+    for i in range(0,n_cells ):
+        string = lines[2 + n*(n_cells + 2) + i]
         split = string.split()
         numbers = [float(j) for j in split]
         data[i,:,n] = numbers[0:n_variables]
@@ -54,7 +53,7 @@ else:
     # Define what happens at every frame in animation
     def update(n, plotting_index, data, line):
         line.set_data(data[:,0,n], data[:,plotting_index,n])
-        line.axes.axis([0, 1, 2e6, 4e6])
+        line.axes.axis([0, 1, -3, 3])
         ax.set_title("Pressure over Distance at t = " + str(times[n]) + " s.")
         return line,
 

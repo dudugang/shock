@@ -11,7 +11,7 @@ MeshReader::MeshReader(string mesh_file) {
 
 
 // Take HDF5 mesh data and convert into data structures that the code will use
-void MeshReader::create_mesh() {
+void MeshReader::create_mesh(Inputs &inputs) {
 
     // Read data from HDF5 file
     read_hdf5();
@@ -28,9 +28,13 @@ void MeshReader::create_mesh() {
     cell_nodes.resize(4);
     cell_faces.resize(4);
 
-    double p = 1e6;
-    double gamma = 1.4;
-    vector<double> q = {1.225, 0, 0, p/(gamma-1)}; // TODO: Initialize with ICs from hdf5 file
+    // TODO: Initialize with ICs from hdf5 file
+    vector<double> q;
+    q.resize(4);
+    q[0] = inputs.rho_v;
+    q[1] = inputs.rho_v * inputs.u_v;
+    q[2] = inputs.rho_v * inputs.v_v;
+    q[3] = inputs.p_v/(inputs.gamma-1) + (1/2)*inputs.rho_v*(inputs.u_v*inputs.u_v + inputs.v_v*inputs.v_v);
     for (int i = 1; i <= n_cells; i++) {
 
         // Find vertices of current cell from mesh connectivity
@@ -113,7 +117,6 @@ void MeshReader::create_mesh() {
             }
 
             // Some random nodes for the ghost, since ghost nodes don't matter
-            // TODO: Is this actually true?
             vector<Point> nodes(4, Point(0,0));
             // Put face in vector
             vector<Face*> boundary_faces = {boundary_face};

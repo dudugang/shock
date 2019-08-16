@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
 
     // Read in mesh
     MeshReader mesh_reader(inputs.mesh_file);
-    mesh_reader.create_mesh();
+    mesh_reader.create_mesh(inputs);
 
     // Initialize flowfield
     Flowfield flow(inputs, mesh_reader);

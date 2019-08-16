@@ -95,7 +95,9 @@ double Geometry::angle_between(double alpha, double beta) {
     // rotation the two vectors start getting close to each other, not further
     // away.
     if (difference > pi) {
-        difference = difference - 2*(difference - pi);
+        difference = 2*pi - difference;
     }
+
+    return difference;
 
 }

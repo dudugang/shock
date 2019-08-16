@@ -17,6 +17,7 @@ class Ghost : public Volume {
     public:
         Ghost(vector<Point>, vector<double>, vector<Face*>, int);
         void update(Inputs&, unordered_map<int, Cell*>&);
-        void update_inflow(unordered_map<int, Cell*>&);
+        void update_inflow(Inputs&);
+        void update_outflow(unordered_map<int, Cell*>&);
         void update_wall(unordered_map<int, Cell*>&);
 };
