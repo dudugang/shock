@@ -5,11 +5,11 @@
 Inputs::Inputs() {
 
     // Parameters
-    dt = .000001;
-    n_iterations = 100;
+    dt = .001;
+    n_iterations = 400;
     n_equations = 4;
     output_rate = 1;
-    mesh_file = "wedge_test.cgns";
+    case_file = "wedge_test.cgns";
 
     // Fluid properties
     gamma = 1.4;
@@ -22,7 +22,7 @@ Inputs::Inputs() {
 
     // Inflow conditions
     rho = 1.225;
-    u = 0;
+    u = 5;
     v = 0;
     p = 1e5;
 

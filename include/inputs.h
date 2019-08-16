@@ -19,7 +19,7 @@ class Inputs {
         int n_iterations;
         int n_equations;
         int output_rate;
-        string mesh_file;
+        string case_file;
         double gamma;
         unordered_map<string, BC> bc;
         double rho;

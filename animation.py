@@ -17,7 +17,7 @@ numbers = [int(i) for i in lines[0].split()]
 n_cells = numbers[0]
 n_times = numbers[1]
 n_variables = 6; # Number of variables, including x and y
-plotting_index = 2 # Index to be plotted
+plotting_index = 3 # Index to be plotted
 
 # Initialize arrays
 data = np.zeros((n_cells, n_variables, n_times))
@@ -32,6 +32,11 @@ for n in range(0,n_times):
         numbers = [float(j) for j in split]
         data[i,:,n] = numbers[0:n_variables]
 
+# Extract data for plotting
+x = data[:,0,:]
+y = data[:,1,:]
+variable = data[:,plotting_index,:]
+
 # Make plot, if desired
 if 'image' in arguments:
     fig = plt.figure(figsize=(12,5))
@@ -45,20 +50,19 @@ if 'image' in arguments:
 else:
 
     # Create figure
-    fig, ax = plt.subplots(figsize=(15,7))
-    line, = ax.plot(data[:,0,0], data[:,plotting_index,0], 'ok')
+    fig = plt.figure()
+    ax = plt.axes(xlim=(0, max(data[:,0,0])), ylim=(0, max(data[:,1,0])))
     plt.xlabel('x (m.)')
-    plt.ylabel('p (Pa)')
+    plt.ylabel('Variable')
 
     # Define what happens at every frame in animation
-    def update(n, plotting_index, data, line):
-        line.set_data(data[:,0,n], data[:,plotting_index,n])
-        line.axes.axis([0, 1, -3, 3])
-        ax.set_title("Pressure over Distance at t = " + str(times[n]) + " s.")
-        return line,
+    def update(n, plotting_index, data):
+        cont = plt.contourf(data[:,0,n], data[:,1,n], data[:,plotting_index,n])
+        plt.title("t = " + str(times[n]))
+        return cont
 
     # Run animation
-    ani = animation.FuncAnimation(fig, update, n_times, fargs=[plotting_index, data, line],
+    ani = animation.FuncAnimation(fig, update, n_times, fargs=[plotting_index, data],
                                   interval=10, blit=True)
 
     # Set up formatting for the movie files

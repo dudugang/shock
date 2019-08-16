@@ -1,4 +1,5 @@
 #include <output.h>
+#include <cell.h>
 
 
 // Constructor
@@ -17,6 +18,15 @@ Output::Output(Inputs inputs, int n_cells) {
     ofstream solution_file;
     solution_file.open("solution.dat", std::ios_base::app);
     solution_file << n_cells << " " << n_writes << endl;
+
+}
+
+
+// Add a time point to the vector of saved times to be outputted later
+// TODO: I believe that means times won't be saved right if the program crashes?
+void Output::add_time(double time) {
+
+    times.push_back(time);
 
 }
 
@@ -60,5 +70,76 @@ void Output::write(Flowfield flow, int i) {
         }
         solution_file << endl;
     }
+
+}
+
+
+// Write final results to HDF5 dataset
+void Output::write_results(string case_file, unordered_map<int, Cell*> &cells, int n_cells) {
+
+    // Get data
+    double rho[n_cells];
+    for (auto &pair : cells) {
+
+        // Convenient variables
+        int id = pair.first;
+        Cell *cell = pair.second;
+
+        // Extract results
+        rho[id - 1] = cell->q[0];
+
+    }
+
+    // Open HDF5 file
+    H5File file(case_file, H5F_ACC_RDWR);
+    // Create groups
+    Group base_iterative_data(file.createGroup("/Base/BaseIterativeData"));
+
+    // Write all data to file
+    string rho_path = "/Base/BaseIterativeData";
+    string times_path = "/Base/BaseIterativeData/TimeValues";
+    string n_steps_path = "/Base/BaseIterativeData/NumberOfSteps";
+    int n_steps[] = {times.size()};
+    //write_dataset(file, rho_path, rho, n_cells);
+    write_dataset(file, times_path, &times[0], times.size());
+    write_dataset(file, n_steps_path, n_steps, 1);
+
+}
+
+
+// Write integer data to an HDF5 dataset
+void Output::write_dataset(H5File file, string dataset_path, int data[], int length) {
+
+    // Create dataspace
+    int rank = 1;
+    hsize_t dims[] = {length};
+    DataSpace dataspace(rank, dims);
+
+    // Create dataset
+    // TODO: Might need an integer and double version of this
+    DataSet dataset = file.createDataSet(dataset_path, PredType::NATIVE_INT, dataspace);
+
+    // Write data to dataset
+    // TODO: Might need an integer and double version of this, too
+    dataset.write(data, PredType::NATIVE_INT, dataspace);
+
+}
+
+
+// Write double precision data to an HDF5 dataset
+void Output::write_dataset(H5File file, string dataset_path, double data[], int length) {
+
+    // Create dataspace
+    int rank = 1;
+    hsize_t dims[] = {length};
+    DataSpace dataspace(rank, dims);
+
+    // Create dataset
+    // TODO: Might need an integer and double version of this
+    DataSet dataset = file.createDataSet(dataset_path, PredType::NATIVE_DOUBLE, dataspace);
+
+    // Write data to dataset
+    // TODO: Might need an integer and double version of this, too
+    dataset.write(data, PredType::NATIVE_DOUBLE, dataspace);
 
 }

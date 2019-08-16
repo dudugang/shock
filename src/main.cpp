@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
     Inputs inputs;
 
     // Read in mesh
-    MeshReader mesh_reader(inputs.mesh_file);
+    MeshReader mesh_reader(inputs.case_file);
     mesh_reader.create_mesh(inputs);
 
     // Initialize flowfield
@@ -45,12 +45,14 @@ int main(int argc, char* argv[]) {
         // Write to file
         output.write(flow, i);
 
-        // Output information to stdout
+        // Output information to stdout and save time
         output.print(flow, i);
+        output.add_time(flow.time);
 
     }
 
     // Output results
+    output.write_results(inputs.case_file, flow.cells, flow.n_cells);
     //output.final_print(flow);
     return 0;
 }

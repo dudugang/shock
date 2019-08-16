@@ -76,9 +76,6 @@ void Flowfield::calculate_flux(Flux &flux) {
         face->flux[2] = face->sintheta * flux_rotated[1]
             + face->costheta * flux_rotated[2];
         face->flux[3] = flux_rotated[3];
-        cout << endl;
-        cout << face->center.x << "    " << face->center.y << endl;
-        cout << face->flux[0] << "  " << face->flux[1] << "  " << face->flux[2] << "  " << face->flux[3] << endl;
 
     }
 
@@ -149,7 +146,6 @@ void Flowfield::apply_time_integrator() {
             cell->q[i] += coefficient * flux_integral[i];
 
         }
-        cout << "flux integral: " << flux_integral[0] << "  " << flux_integral[1] << "  " << flux_integral[2] << "  " << flux_integral[3] << endl;
 
         // Update time
         time = time + inputs.dt;
