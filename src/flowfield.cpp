@@ -10,11 +10,14 @@ Flowfield::Flowfield(Inputs inputs, MeshReader mesh_reader) {
 
     // Get number of cells/nodes from the mesh
     n_cells = mesh_reader.n_cells;
+    n_nodes = mesh_reader.n_nodes;
 
-    // Get cells, ghosts, and faces from MeshReader object
-    cells  = mesh_reader.cells;
-    ghosts = mesh_reader.ghosts;
-    faces  = mesh_reader.faces;
+    // Get vertices, cells, ghosts, and faces from MeshReader object
+    vertices     = mesh_reader.vertices;
+    connectivity = mesh_reader.connectivity;
+    cells        = mesh_reader.cells;
+    ghosts       = mesh_reader.ghosts;
+    faces        = mesh_reader.faces;
 
     // Calculate face normal vectors
     for (auto &face : faces) {

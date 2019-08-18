@@ -31,6 +31,7 @@ class MeshReader {
         int n_nodes;
         int n_cells;
         unordered_map<int, Point> vertices;
+        vector<int> connectivity;
         unordered_map<int, Cell*> cells;
         unordered_map<int, Ghost*> ghosts;
         unordered_set<Face*> faces;
@@ -43,7 +44,7 @@ class MeshReader {
         void read_dataset_contents(double*, DataSet, DataSpace, DataSpace);
         double *x_coords;
         double *y_coords;
-        int *connectivity;
+        int *conn;
         unordered_map<string, int*> bc_connectivity;
         unordered_map<string, int> bc_face_count;
 };

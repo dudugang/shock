@@ -21,11 +21,11 @@ int main(int argc, char* argv[]) {
     // Initialize flowfield
     Flowfield flow(inputs, mesh_reader);
 
-    // Initialize output
-    Output output(inputs, flow.n_cells);
-
     // Initialize fluxes
     Flux flux;
+
+    // Initialize output
+    Output output(inputs, flow);
 
     // Write initial conditions to file
     output.write(flow, 0);
@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Output results
-    output.write_results(inputs.case_file, flow.cells, flow.n_cells);
+    //output.write_results(inputs.case_file, flow.cells, flow.n_cells);
     //output.final_print(flow);
     return 0;
 }

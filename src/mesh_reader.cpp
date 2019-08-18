@@ -142,14 +142,18 @@ void MeshReader::read_hdf5() {
     // Get mesh information from domain
     string x_coords_path = "/Base/dom-1/GridCoordinates/CoordinateX/ data";
     string y_coords_path = "/Base/dom-1/GridCoordinates/CoordinateY/ data";
-    string connectivity_path = "/Base/dom-1/QuadElements/ElementConnectivity/ data";
     string range_path = "/Base/dom-1/ data";
+    string connectivity_path = "/Base/dom-1/QuadElements/ElementConnectivity/ data";
     x_coords = read_dataset<double>(file, x_coords_path);
     y_coords = read_dataset<double>(file, y_coords_path);
-    connectivity = read_dataset<int>(file, connectivity_path);
     int *range = read_dataset<int>(file, range_path);
     n_nodes = range[0];
     n_cells = range[1];
+    conn = read_dataset<int>(file, connectivity_path);
+    connectivity.resize(n_cells*4);
+    for (int i = 0; i < n_cells*4; i++) {
+        connectivity[i] = conn[i];
+    }
     // x_coords and y_coords give coordinates of nodes in mesh.
     // connectivity gives node IDs of 4 nodes per cell ID, so the first
     // 4 numbers are the 4 node IDs of cell 1, the second 4 numbers are

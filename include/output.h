@@ -16,7 +16,7 @@ class Cell;
 // to a solution file for postprocessing.
 class Output {
     public:
-        Output(Inputs, int);
+        Output(Inputs, Flowfield&);
         void add_time(double);
         void print(Flowfield, int);
         void final_print(Flowfield);
