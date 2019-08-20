@@ -20,6 +20,7 @@ class Volume {
         vector<Point> vertices;
         vector<double> q;
         vector<Face*> faces;
+        vector<int> neighbors;
         int id;
         double volume;
         string type;

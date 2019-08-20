@@ -9,7 +9,7 @@ Inputs::Inputs() {
     n_iterations = 1;
     n_equations = 4;
     output_rate = 1;
-    case_file = "wedge_30deg.cgns";
+    case_file = "wedge_test.cgns";
 
     // Fluid properties
     gamma = 1.4;

@@ -34,10 +34,12 @@ class Ghost;
 // vector, with a positive theta denoting a normal vector above the x axis (the
 // picture above shows a face with negative theta).
 class Face {
+
     public:
         Face(Point, Point);
         void find_normal_vector(unordered_map<int, Cell*>&,
             unordered_map<int, Ghost*>&, int);
+        void sort_neighbors();
         bool contains(Point, Point);
         vector<double> q_left;
         vector<double> q_right;
@@ -50,4 +52,9 @@ class Face {
         double costheta;
         double area;
         vector<double> flux;
+
 };
+
+
+// Free functions for operator overloads
+bool operator== (const Face&, const Face&);

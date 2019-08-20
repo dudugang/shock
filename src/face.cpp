@@ -32,8 +32,6 @@ Face::Face(Point point1, Point point2) {
 void Face::find_normal_vector(unordered_map<int, Cell*> &cells,
     unordered_map<int, Ghost*> &ghosts, int n_cells) {
 
-    // Sort neighbor ID's from small to large
-    std::sort(neighbors.begin(), neighbors.end());
     // Get smaller of the two neighbor cell ID's
     int id = neighbors[0];
 
@@ -90,6 +88,10 @@ void Face::find_normal_vector(unordered_map<int, Cell*> &cells,
 }
 
 
+// Sort neighbor ID's from small to large
+void Face::sort_neighbors() { std::sort(neighbors.begin(), neighbors.end()); }
+
+
 // Check if face nodes contain certain points
 bool Face::contains(Point p1, Point p2) {
 
@@ -107,4 +109,11 @@ bool Face::contains(Point p1, Point p2) {
 
     return result;
 
+}
+
+
+// Check if two faces equal by comparing midpoints
+bool operator== (const Face &face1, const Face &face2) {
+    return (face1.center.x == face2.center.x
+            and face1.center.y == face2.center.y);
 }

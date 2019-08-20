@@ -1,4 +1,5 @@
 #include <mesh_reader.h>
+#include <algorithm>
 #include <cell.h>
 #include <face.h>
 #include <ghost.h>
@@ -54,26 +55,8 @@ void MeshReader::create_mesh(Inputs &inputs) {
             Point vertex1 = cell_nodes[face_index % 4];
             Point vertex2 = cell_nodes[(face_index + 1) % 4];
 
-            // Get midpoint of vertices
-            Point midpoint = Geometry::find_midpoint(vertex1, vertex2);
-
-            // Check if face already exists by looping over every face and
-            // comparing midpoints
-            bool face_exists = false;
-            for (auto &face : faces) {
-                if (face->center == midpoint) {
-                    face_exists = true;
-                    // If face already exists, add it to list of cell's faces
-                    cell_faces[face_index] = face;
-                    break;
-                }
-            }
-
-            // Only create face if it doesn't already exist
-            if (not face_exists) {
-                // Create face
-                cell_faces[face_index] = new Face(vertex1, vertex2);
-            }
+            // Create face and add to list of cell's faces
+            cell_faces[face_index] = new Face(vertex1, vertex2);
 
             // Add current cell to face's list of neighbors
             cell_faces[face_index]->neighbors.push_back(i);
@@ -116,8 +99,9 @@ void MeshReader::create_mesh(Inputs &inputs) {
                 }
             }
 
-            // Some random nodes for the ghost, since ghost nodes don't matter
-            vector<Point> nodes(4, Point(0,0));
+            // Ghost only has two nodes, which are the nodes if its boundary
+            // face
+            vector<Point> nodes = {boundary_face->point1, boundary_face->point2};
             // Put face in vector
             vector<Face*> boundary_faces = {boundary_face};
             // Create ghost cell, add to map, and save boundary condition name
@@ -125,6 +109,197 @@ void MeshReader::create_mesh(Inputs &inputs) {
             ghosts[ghost_id]->type = name;
 
             ghost_id++;
+
+        }
+
+    }
+
+    // Find neighbors of every cell
+    find_cell_neighbors();
+
+    // Find neighbors of every face
+    find_face_neighbors();
+
+    // Sort each face's neighbors in ascending order of volume ID's
+    for (auto &face : faces) {
+        face->sort_neighbors();
+    }
+
+    cout << "Size before: " << faces.size() << endl;
+
+    // Combine duplicate faces using connectivity information
+    combine_duplicate_faces();
+    cout << "Size after: " << faces.size() << endl;
+
+}
+
+
+// Finds the neighbors of every cell/ghost in the mesh
+void MeshReader::find_cell_neighbors() {
+
+    // Vector of all volumes
+    vector<Volume*> volumes;
+    volumes.reserve(cells.size() + ghosts.size());
+    // Put all cells in vector of volumes
+    for (auto &pair : cells)  { volumes.push_back(pair.second); }
+    // Put all ghosts in vector of volumes
+    for (auto &pair : ghosts) { volumes.push_back(pair.second); }
+
+    // Sort all volumes by the x-coordinate of their first face's center
+    std::sort(volumes.begin(), volumes.end(), [](Volume* v1, Volume* v2) {
+        return v1->faces[0]->center.x < v2->faces[0]->center.x;
+    });
+
+    // Loop through all volumes
+    for (int current_index = 0; current_index < volumes.size(); current_index++) {
+
+        // Convenient point to current volume
+        Volume *current = volumes[current_index];
+
+        // Loop through volumes again, looking for the neighbors of each cell.
+        // However, since cells are sorted by one of their face's centers,
+        // looking for cells near the same index is most likely to find the
+        // match. This should save lots of time.
+        for (int j = 1; j < volumes.size(); j++) {
+
+            // Convert j to id of candidate cell, to be determined if this is a
+            // neighbor
+            int candidate_index;
+            if (j % 2 != 0) {
+                candidate_index = current_index + (j + 1)/2;
+            } else {
+                candidate_index = current_index - j/2;
+            }
+
+            // If candidate index is negative, skip this iteration
+            if (candidate_index < 0) { continue; }
+            // If candidate index is the same as the current cell index, skip
+            // this iteration
+            if (candidate_index == current_index) { continue; }
+            // If candidate index is greater than or equal to the total number
+            // of volumes, skip this iteration
+            if (candidate_index >= volumes.size()) { continue; }
+
+            // Convenient pointer to candidate volume
+            Volume *candidate = volumes[candidate_index];
+
+            // Loop over every vertex in the candidate cell
+            int matches = 0;
+            for (auto &vertex : candidate->vertices) {
+
+                // If this vertex of the candidate cell matches a vertex in the
+                // current cell, then increase matches
+                if (std::find(current->vertices.begin(),
+                    current->vertices.end(), vertex) != current->vertices.end()) {
+                    matches++;
+                }
+
+            }
+
+            // If there are two matches, then there are two vertices shared
+            // between the two volumes, which means that they are neighbors.
+            // This is only true in 2D.
+            if (matches == 2) { current->neighbors.push_back(candidate->id); }
+
+            // Stop looking for a volume's neighbors if all neighbors have already
+            // been found
+            // TODO: Make this work for any shape of cell
+            if (current->type == "flow"
+                and current->neighbors.size() == 4) {
+                break;
+            } else if (current->type == "ghost"
+                and current->neighbors.size() == 1) {
+                break;
+            }
+
+        }
+
+    }
+
+}
+
+
+// Find the other cell neighboring each face.
+void MeshReader::find_face_neighbors() {
+
+    // Loop over every face
+    for (auto &face : faces) {
+
+        // Pointer to cell adjacent to face
+        Cell *cell = cells[face->neighbors[0]];
+
+        // Loop over every neighboring cell
+        bool found_neighbor = false;
+        for (auto &neighbor_id : cell->neighbors) {
+
+            // Pointer to the neighbor volume
+            cout << "Neighbor of cell " << cell->id << " is: " << neighbor_id << endl;
+            Volume *neighbor;
+            if (neighbor_id <= n_cells) {
+                neighbor = cells[neighbor_id];
+            } else {
+                neighbor = ghosts[neighbor_id];
+            }
+
+            // Loop over every face of the neighbor
+            for (auto &neighbor_face : neighbor->faces) {
+                // If the neighbor's face matches the original face, then add
+                // the neighbor to the original face's list of neighbors
+                if (face == neighbor_face) {
+                    face->neighbors.push_back(neighbor->id);
+                    found_neighbor = true;
+                    break;
+                }
+            }
+
+            // Stop this if the neighbor was found
+            if (found_neighbor) { break; }
+
+        }
+
+    }
+
+}
+
+
+// Find all face duplicates created during initialization of volumes and get rid
+// of the extra, replacing it with a pointer to the original. This way, the flux
+// calculations don't happen twice.
+void MeshReader::combine_duplicate_faces() {
+
+    for (auto face : faces) {
+        cout << face->neighbors[0] << "   " << face->neighbors[1] << endl;
+    }
+
+    // Loop over every face
+    for (auto face : faces) {
+
+        // If this face is a null pointer, then remove it from the set
+        if (face == nullptr) {
+            cout << "Removing null pointer" << endl;
+            faces.erase(face);
+            continue;
+        }
+
+        // Locate cell with smaller cell ID on one side of face
+        Cell *cell = cells[face->neighbors[0]];
+
+        cout << "Current smaller-ID cell is: " << cell->id << endl;
+
+        // Loop over every face of this cell
+        for (int face_index = 0; face_index < cell->faces.size(); face_index++) {
+
+            // Check if cell face is the duplicate
+            if (*(cell->faces[face_index]) == *face) {
+
+                // Delete the cell face
+                cout << "Deleting cell face" << endl;
+                delete cell->faces[face_index];
+                // Point it to the other face and store the cell ID, then stop
+                cell->faces[face_index] = face;
+                break;
+
+            }
 
         }
 

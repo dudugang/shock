@@ -37,6 +37,9 @@ class MeshReader {
         unordered_set<Face*> faces;
 
     private:
+        void find_cell_neighbors();
+        void find_face_neighbors();
+        void combine_duplicate_faces();
         void read_hdf5();
         template<class T>
         T* read_dataset(H5File, string);
