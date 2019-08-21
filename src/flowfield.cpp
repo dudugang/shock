@@ -38,8 +38,12 @@ void Flowfield::calculate_flux(Flux &flux) {
     vector<double> q_right;
     vector<double> q_left_rotated;
     vector<double> q_right_rotated;
+    vector<double> flux_rotated;
+    q_left.resize(4);
+    q_right.resize(4);
     q_left_rotated.resize(4);
     q_right_rotated.resize(4);
+    flux_rotated.resize(4);
     // Loop over all faces
     for (auto &face : faces) {
 
@@ -66,7 +70,7 @@ void Flowfield::calculate_flux(Flux &flux) {
 
         // Get face flux using rotated left and right states. This returns the
         // rotated flux.
-        vector<double> flux_rotated = flux.steger_warming(q_left_rotated, q_right_rotated,
+        flux_rotated = flux.steger_warming(q_left_rotated, q_right_rotated,
             inputs.gamma);
 
         // Now, this flux has to be un-rotated. This is done by left multiplying

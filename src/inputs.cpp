@@ -6,9 +6,9 @@ Inputs::Inputs() {
 
     // Parameters
     dt = .000005;
-    n_iterations = 2000;
+    n_iterations = 8000;
     n_equations = 4;
-    output_rate = 1;
+    output_rate = 50;
     case_file = "wedge_30deg.cgns";
 
     // Fluid properties

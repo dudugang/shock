@@ -24,7 +24,7 @@ void Ghost::update(Inputs &inputs, unordered_map<int, Cell*> &cells) {
             update_outflow(cells);
             break;
         case BC::wall:
-            update_wall(cells);
+            update_wall(cells, inputs);
             break;
     }
 
@@ -63,17 +63,20 @@ void Ghost::update_outflow(unordered_map<int, Cell*> &cells) {
 // Update ghost cell with an inviscid wall boundary condition.
 // TODO: Make this work in 2D in arbitrary directions. Must use some info from
 // normal vector angle for the momentum equations.
-void Ghost::update_wall(unordered_map<int, Cell*> &cells) {
+void Ghost::update_wall(unordered_map<int, Cell*> &cells, Inputs &inputs) {
 
     // Find neighbor. A ghost only has one face, so faces[0] retrieves this, and
     // ghosts always have larger cell ID's than flowfield cells, so neighbors[0]
     // retreives the neighboring cell ID since neighbors is sorted from small
     // cell ID to large cell ID.
     Cell* neighbor = cells[faces[0]->neighbors[0]];
+    double rho = neighbor->q[0];
+    double u = neighbor->q[1] / rho;
+    double v = neighbor->q[2] / rho;
+    double p = (inputs.gamma-1) * (neighbor->q[3] - .5*rho*(u*u + v*v));
 
-    // Keep mass and energy the same as its neighbor
-    q[0] =  neighbor->q[0];
-    q[3] =  neighbor->q[3];
+    // Keep density the same as its neighbor
+    q[0] =  rho;
 
     // Keep tangential momentum the same, but flip the sign of normal momentum.
     // This is actually somewhat nontrivial and I do not gaurantee that this is
@@ -85,5 +88,8 @@ void Ghost::update_wall(unordered_map<int, Cell*> &cells) {
     double &q2 = neighbor->q[2];
     q[1] = 2*q2*costheta*sintheta + q1*(sintheta*sintheta - costheta*costheta);
     q[2] = q[1]*costheta/sintheta + q1*costheta/sintheta - q2;
+
+    // Keep pressure the same as its neighbor
+    q[3] = p/(inputs.gamma-1) + .5*rho*((q[1]*q[1])/(rho*rho) + (q[2]*q[2])/(rho*rho));
 
 }
