@@ -3,6 +3,7 @@
 #include <cell.h>
 #include <face.h>
 #include <ghost.h>
+#include <volume.h>
 
 
 // Constructor
@@ -65,6 +66,7 @@ void MeshReader::create_mesh(Inputs &inputs) {
 
         // Add cell to mapping
         cells[i] = new Cell(cell_nodes, q, cell_faces, i);
+        volumes[i] = cells[i];
 
         // Add faces to set
         for (auto &face : cell_faces) {
@@ -106,6 +108,7 @@ void MeshReader::create_mesh(Inputs &inputs) {
             vector<Face*> boundary_faces = {boundary_face};
             // Create ghost cell, add to map, and save boundary condition name
             ghosts[ghost_id] = new Ghost(nodes, q, boundary_faces, ghost_id);
+            volumes[ghost_id] = ghosts[ghost_id];
             ghosts[ghost_id]->type = name;
 
             ghost_id++;
@@ -124,11 +127,9 @@ void MeshReader::create_mesh(Inputs &inputs) {
     for (auto &face : faces) {
         face->sort_neighbors();
     }
-    cout << "Size before: " << faces.size() << endl;
 
     // Combine duplicate faces using connectivity information
     combine_duplicate_faces();
-    cout << "Size after: " << faces.size() << endl;
 
 }
 
@@ -232,7 +233,6 @@ void MeshReader::find_face_neighbors() {
         for (auto &neighbor_id : cell->neighbors) {
 
             // Pointer to the neighbor volume
-            cout << "Neighbor of cell " << cell->id << " is: " << neighbor_id << endl;
             Volume *neighbor;
             if (neighbor_id <= n_cells) {
                 neighbor = cells[neighbor_id];
@@ -266,97 +266,69 @@ void MeshReader::find_face_neighbors() {
 // calculations don't happen twice.
 void MeshReader::combine_duplicate_faces() {
 
-    for (auto &face : faces) {
-        cout << face->neighbors[0] << "   " << face->neighbors[1] << endl;
-    }
+    // Loop over every volume
+    for (auto &pair : volumes) {
 
-    // Loop over every face
-    for (Face* &face : faces) {
+        // Cell id and pointer to cell
+        int volume_id = pair.first;
+        Volume* volume = pair.second;
 
-        // Pointers to cells
-        Cell *little_cell = cells[face->neighbors[0]];
-        Volume *big_cell;
-        if (face->neighbors[1] <= n_cells) {
-            big_cell = cells[face->neighbors[1]];
-        } else {
-            big_cell = ghosts[face->neighbors[1]];
+        // Loop over all faces of volume
+        for (int i = 0; i < volume->faces.size(); i++) {
+
+            // Pointer to this face
+            Face* face = volume->faces[i];
+
+            // If this cell is the second neighbor of the face, then it has
+            // higher cell ID than the adjacent cell, so do nothing for this
+            // face
+            int adjacent_id;
+            if (face->neighbors[1] == volume_id or volume_id > n_cells) {
+                continue;
+            // Otherwise, this cell is the first neighbor, meaning it has lower
+            // cell ID than its adjacent cell.
+            } else {
+                adjacent_id = face->neighbors[1];
+            }
+
+            // Get pointer to adjacent cell
+            Volume *adjacent = volumes[adjacent_id];
+
+            // If adjacent is a ghost, do nothing
+            if (adjacent->type != "flow") { continue; }
+
+            // Loop over faces of adjacent cell
+            for (int j = 0; j < adjacent->faces.size(); j++) {
+                // If face from original cell matches this adjacent face
+                if (*face == *(adjacent->faces[j])) {
+                    // Delete original face
+                    delete face;
+                    // Set pointer equal to new face
+                    volume->faces[i] = adjacent->faces[j];
+                }
+            }
+
         }
 
-        cout << "Current smaller-ID cell is: " << little_cell->id << endl;
-        cout << "Current bigger-ID cell is: " << big_cell->id << endl;
+    }
 
-        // Loop over all faces of big cell
-        for (auto &big_cell_face : big_cell->faces) {
-            // If it matches the current face
-            if (*big_cell_face == *face) {
-                // Loop over all faces of the little cell
-                for (auto &little_cell_face : little_cell->faces) {
-                    // If it matches the current face
-                    if (*little_cell_face == *face) {
-                        // Deallocate memory of the little face
-                        cout << "Deleting!" << endl;
-                        delete little_cell_face;
-                        // Reassign pointers
-                        little_cell_face = big_cell_face;
-                        face = big_cell_face;
-                        break;
-                    }
-                }
-                break;
+    // Clear faces from set
+    faces.clear();
+    // Loop over every cell
+    for (auto &pair : cells) {
+        // Cell pointer and its ID
+        Cell *cell = pair.second;
+        int id = pair.first;
+        // Loop over every face
+        for (auto &face : cell->faces) {
+            // If this cell's ID is less than the adjacent cell, then add the
+            // face to the set
+            if (face->neighbors[0] == id) {
+                faces.insert(face);
             }
         }
-
-        /*
-        // Find index of this face in the little cell
-        auto little_iterator = std::find_if(little_cell->faces.begin(),
-            little_cell->faces.end(), [&face](Face* cell_face) {
-                return *cell_face == *face;
-            });
-        int little_face_index = std::distance(little_cell->faces.begin(), little_iterator);
-        cout << "little index: " << little_face_index << endl;
-
-        // Find index of this face in the big cell
-        auto big_iterator = std::find_if(big_cell->faces.begin(),
-            big_cell->faces.end(), [&face](Face* cell_face) {
-                return *cell_face == *face;
-            });
-        int big_face_index = std::distance(big_cell->faces.begin(), big_iterator);
-        cout << "big index: " << big_face_index << endl;
-
-        // Pointers to same face in big and little cell
-        Face* little_face = little_cell->faces[little_face_index];
-        Face* big_face = big_cell->faces[big_face_index];
-        */
-        /*
-        // Delete the face of the little cell
-        delete little_face;
-        // Reset pointers
-        little_cell->faces[little_face_index] = big_face;
-        face = big_face;
-        */
-
     }
 
-    // Set of counted faces
-    unordered_set<Face*> counted_faces;
-
-    // Loop over every face
-    for (auto &face : faces) {
-
-        // Check if face already counted
-        if (counted_faces.find(face) != counted_faces.end()) {
-
-            // If face already counted, get rid of it
-            faces.erase(face);
-
-        } else {
-
-            // If face not yet counted, add it to list of counted faces
-            counted_faces.insert(face);
-
-        }
-
-    }
 
 }
 

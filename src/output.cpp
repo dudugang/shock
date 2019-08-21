@@ -65,7 +65,9 @@ void Output::add_time(double time) {
 // Output information after iterations
 void Output::print(Flowfield flow, int i) {
 
-    cout << "Iteration " << i << ": " << flow.cells[5]->q[0] << endl;
+    Cell *cell = flow.cells[5];
+    cout << "Iteration " << i << ": " << cell->q[0] << "  " << cell->q[1]
+         << "  " << cell->q[2] << "  " << cell->q[3] << endl;
 
 }
 

@@ -20,6 +20,7 @@ using std::unordered_set;
 // Forward declare
 class Cell;
 class Ghost;
+class Volume;
 class Face;
 
 class MeshReader {
@@ -34,6 +35,7 @@ class MeshReader {
         vector<int> connectivity;
         unordered_map<int, Cell*> cells;
         unordered_map<int, Ghost*> ghosts;
+        unordered_map<int, Volume*> volumes;
         unordered_set<Face*> faces;
 
     private:

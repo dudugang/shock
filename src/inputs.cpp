@@ -5,11 +5,11 @@
 Inputs::Inputs() {
 
     // Parameters
-    dt = .0001;
-    n_iterations = 1;
+    dt = .000005;
+    n_iterations = 2000;
     n_equations = 4;
     output_rate = 1;
-    case_file = "wedge_test.cgns";
+    case_file = "wedge_30deg.cgns";
 
     // Fluid properties
     gamma = 1.4;
@@ -21,16 +21,16 @@ Inputs::Inputs() {
     bc["wedge"] = BC::wall;
 
     // Inflow conditions
-    rho = .1;
-    u = 100;
+    rho = 1;
+    u = 1200;
     v = 0;
-    p = 1e4;
+    p = 1e5;
 
     // Volume conditions
-    rho_v = .1;
+    rho_v = 1;
     u_v = 0;
     v_v = 0;
-    p_v = 1e4;
+    p_v = 1e5;
 
 
 }
