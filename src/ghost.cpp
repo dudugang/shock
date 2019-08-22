@@ -24,7 +24,7 @@ void Ghost::update(Inputs &inputs, unordered_map<int, Cell*> &cells) {
             update_outflow(cells);
             break;
         case BC::wall:
-            update_wall(cells, inputs);
+            update_wall(cells, inputs.gamma);
             break;
     }
 
@@ -37,7 +37,7 @@ void Ghost::update_inflow(Inputs &inputs) {
     q[0] = inputs.rho;
     q[1] = inputs.rho * inputs.u;
     q[2] = inputs.rho * inputs.v;
-    q[3] = inputs.p/(inputs.gamma-1) + (1/2)*inputs.rho*(inputs.u*inputs.u + inputs.v*inputs.v);
+    q[3] = inputs.p/(inputs.gamma-1) + .5*inputs.rho*(inputs.u*inputs.u + inputs.v*inputs.v);
 
 }
 
@@ -63,7 +63,7 @@ void Ghost::update_outflow(unordered_map<int, Cell*> &cells) {
 // Update ghost cell with an inviscid wall boundary condition.
 // TODO: Make this work in 2D in arbitrary directions. Must use some info from
 // normal vector angle for the momentum equations.
-void Ghost::update_wall(unordered_map<int, Cell*> &cells, Inputs &inputs) {
+void Ghost::update_wall(unordered_map<int, Cell*> &cells, double gamma) {
 
     // Find neighbor. A ghost only has one face, so faces[0] retrieves this, and
     // ghosts always have larger cell ID's than flowfield cells, so neighbors[0]
@@ -73,7 +73,7 @@ void Ghost::update_wall(unordered_map<int, Cell*> &cells, Inputs &inputs) {
     double rho = neighbor->q[0];
     double u = neighbor->q[1] / rho;
     double v = neighbor->q[2] / rho;
-    double p = (inputs.gamma-1) * (neighbor->q[3] - .5*rho*(u*u + v*v));
+    double p = (gamma-1) * (neighbor->q[3] - .5*rho*(u*u + v*v));
 
     // Keep density the same as its neighbor
     q[0] =  rho;
@@ -90,6 +90,6 @@ void Ghost::update_wall(unordered_map<int, Cell*> &cells, Inputs &inputs) {
     q[2] = q[1]*costheta/sintheta + q1*costheta/sintheta - q2;
 
     // Keep pressure the same as its neighbor
-    q[3] = p/(inputs.gamma-1) + .5*rho*((q[1]*q[1])/(rho*rho) + (q[2]*q[2])/(rho*rho));
+    q[3] = p/(gamma-1) + .5*rho*((q[1]*q[1])/(rho*rho) + (q[2]*q[2])/(rho*rho));
 
 }

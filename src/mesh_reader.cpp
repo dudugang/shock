@@ -3,6 +3,7 @@
 #include <cell.h>
 #include <face.h>
 #include <ghost.h>
+#include <state.h>
 #include <volume.h>
 
 
@@ -33,10 +34,6 @@ void MeshReader::create_mesh(Inputs &inputs) {
     // TODO: Initialize with ICs from hdf5 file
     vector<double> q;
     q.resize(4);
-    q[0] = inputs.rho_v;
-    q[1] = inputs.rho_v * inputs.u_v;
-    q[2] = inputs.rho_v * inputs.v_v;
-    q[3] = inputs.p_v/(inputs.gamma-1) + (1/2)*inputs.rho_v*(inputs.u_v*inputs.u_v + inputs.v_v*inputs.v_v);
     for (int i = 1; i <= n_cells; i++) {
 
         // Find vertices of current cell from mesh connectivity
@@ -65,6 +62,12 @@ void MeshReader::create_mesh(Inputs &inputs) {
         }
 
         // Add cell to mapping
+        // TODO: Fix this hack
+        if (cell_nodes[0].x < .5) {
+            q = State::physical_to_conserved(inputs.vc["driver"], inputs.gamma);
+        } else {
+            q = State::physical_to_conserved(inputs.vc["driven"], inputs.gamma);
+        }
         cells[i] = new Cell(cell_nodes, q, cell_faces, i);
         volumes[i] = cells[i];
 

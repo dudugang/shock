@@ -28,7 +28,10 @@ empty =
 test_suffix = _test
 
 .PHONY: all
-all: directories $(bin_dir)/$(exe)
+all: main test
+
+.PHONY: main
+main: directories $(bin_dir)/$(exe)
 
 .PHONY: test
 test: test_directories $(bin_dir)/$(test_exe)

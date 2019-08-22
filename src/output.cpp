@@ -18,7 +18,7 @@ Output::Output(Inputs inputs, Flowfield &flow) {
     ofstream solution_file;
     solution_file.open("solution.dat", std::ios_base::app);
     solution_file << "TITLE = \"Shock CFD Simulation\"" << endl;
-    solution_file << "VARIABLES = \"x\", \"y\", \"Energy Density\"" << endl;
+    solution_file << "VARIABLES = \"x\", \"y\", \"Pressure\"" << endl;
     solution_file << "ZONE T=\"Iteration 0\", DATAPACKING=BLOCK, NODES="
         << flow.n_nodes << ", ELEMENTS=" << flow.n_cells
         << ", ZONETYPE=FEQUADRILATERAL, VARLOCATION=([3]=CellCentered)" << endl;
@@ -33,9 +33,15 @@ Output::Output(Inputs inputs, Flowfield &flow) {
         solution_file << flow.vertices[i].y << endl;
     }
     solution_file << endl;
-    // Write rho*E
+    // Write pressure
+    double p;
     for (int i = 1; i <= flow.cells.size(); i++) {
-        solution_file << flow.cells[i]->q[3] << endl;
+        double rho = flow.cells[i]->q[0];
+        double u = flow.cells[i]->q[1] / rho;
+        double v = flow.cells[i]->q[2] / rho;
+        p = (inputs.gamma-1) * (flow.cells[i]->q[3]
+          - .5*rho*(u*u + v*v));
+        solution_file << p << endl;
     }
     solution_file << endl;
 
@@ -103,9 +109,15 @@ void Output::write(Flowfield flow, int i) {
             << "VARSHARELIST=([1-2]=1), CONNECTIVITYSHAREZONE=1, "
             << "SOLUTIONTIME=" << flow.time << endl;
 
-        // Write rho*E
+        // Write pressure
+        double p;
         for (int i = 1; i <= flow.cells.size(); i++) {
-            solution_file << flow.cells[i]->q[3] << endl;
+            double rho = flow.cells[i]->q[0];
+            double u = flow.cells[i]->q[1] / rho;
+            double v = flow.cells[i]->q[2] / rho;
+            p = (flow.inputs.gamma-1) * (flow.cells[i]->q[3]
+              - .5*rho*(u*u + v*v));
+            solution_file << p << endl;
         }
         solution_file << endl << endl;
 

@@ -22,6 +22,7 @@ class Inputs {
         string case_file;
         double gamma;
         unordered_map<string, BC> bc;
+        unordered_map<string, vector<double> > vc;
         double rho;
         double u;
         double v;
