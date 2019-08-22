@@ -8,12 +8,6 @@ Output::Output(Inputs inputs, Flowfield &flow) {
     // Wipe old solution file
     remove("solution.dat");
 
-    // Calculate total number of file writes: n_iterations / output_rate,
-    // rounded up, plus one (since initial conditions always written).
-    // Note: the following is basically just a hacky way of doing ceiling
-    // integer division (i.e. rounding up).
-    int n_writes = (inputs.n_iterations + inputs.output_rate - 1) / inputs.output_rate + 1;
-
     // Write header info
     ofstream solution_file;
     solution_file.open("solution.dat", std::ios_base::app);
@@ -24,18 +18,18 @@ Output::Output(Inputs inputs, Flowfield &flow) {
         << ", ZONETYPE=FEQUADRILATERAL, VARLOCATION=([3]=CellCentered)" << endl;
 
     // Write x position
-    for (int i = 1; i <= flow.vertices.size(); i++) {
+    for (size_t i = 1; i <= flow.vertices.size(); i++) {
         solution_file << flow.vertices[i].x << endl;
     }
     solution_file << endl;
     // Write y position
-    for (int i = 1; i <= flow.vertices.size(); i++) {
+    for (size_t i = 1; i <= flow.vertices.size(); i++) {
         solution_file << flow.vertices[i].y << endl;
     }
     solution_file << endl;
     // Write pressure
     double p;
-    for (int i = 1; i <= flow.cells.size(); i++) {
+    for (size_t i = 1; i <= flow.cells.size(); i++) {
         double rho = flow.cells[i]->q[0];
         double u = flow.cells[i]->q[1] / rho;
         double v = flow.cells[i]->q[2] / rho;
@@ -78,20 +72,6 @@ void Output::print(Flowfield flow, int i) {
 }
 
 
-// Output results to stdout
-void Output::final_print(Flowfield flow) {
-
-    cout << "Final t = " << flow.time << " s." << endl;
-    cout << "Solution:" << endl;
-    for (auto &pair : flow.cells) {
-        Cell* cell = pair.second;
-        cout << "Volume ID " << cell->id << ": " << cell->q[0] << ", "
-             << cell->q[1] << ", " << cell->q[2] << endl;
-    }
-    cout << endl;
-
-}
-
 // Write results to file for postprocessing
 void Output::write(Flowfield flow, int i) {
 
@@ -111,7 +91,7 @@ void Output::write(Flowfield flow, int i) {
 
         // Write pressure
         double p;
-        for (int i = 1; i <= flow.cells.size(); i++) {
+        for (size_t i = 1; i <= flow.cells.size(); i++) {
             double rho = flow.cells[i]->q[0];
             double u = flow.cells[i]->q[1] / rho;
             double v = flow.cells[i]->q[2] / rho;
@@ -127,7 +107,7 @@ void Output::write(Flowfield flow, int i) {
 
 
 // Write final results to HDF5 dataset
-void Output::write_results(string case_file, unordered_map<int, Cell*> &cells, int n_cells) {
+void Output::write_results(string case_file, unordered_map<int, Cell*> &cells, unsigned int n_cells) {
 
     // Get data
     double rho[n_cells];
@@ -154,10 +134,10 @@ void Output::write_results(string case_file, unordered_map<int, Cell*> &cells, i
     string times_path = "/Base/BaseIterativeData/TimeValues";
     string n_steps_path = "/Base/BaseIterativeData/NumberOfSteps";
     string rho_path = "/Base/dom-1/FlowSolution/Density/ data";
-    int n_steps[] = {times.size()};
+    //unsigned int n_steps[] = {times.size()};
     //write_dataset(file, times_path, &times[0], times.size());
     //write_dataset(file, n_steps_path, n_steps, 1);
-    write_dataset(file, rho_path, rho, n_cells);
+    //write_dataset(file, rho_path, rho, n_cells);
     //file.link(H5G_LINK_HARD, "Base/dom-1/FamilyName", "Base/Zone1/FamilyName");
     //file.link(H5G_LINK_HARD, "Base/dom-1/ZoneBC", "Base/Zone1/ZoneBC");
     //file.link(H5G_LINK_HARD, "Base/dom-1/ZoneType", "Base/Zone1/ZoneType");
@@ -173,7 +153,7 @@ void Output::write_results(string case_file, unordered_map<int, Cell*> &cells, i
 
 
 // Write integer data to an HDF5 dataset
-void Output::write_dataset(H5File file, string dataset_path, int data[], int length) {
+void Output::write_dataset(H5File file, string dataset_path, int data[], hsize_t length) {
 
     // Create dataspace
     int rank = 1;
@@ -192,7 +172,7 @@ void Output::write_dataset(H5File file, string dataset_path, int data[], int len
 
 
 // Write double precision data to an HDF5 dataset
-void Output::write_dataset(H5File file, string dataset_path, double data[], int length) {
+void Output::write_dataset(H5File file, string dataset_path, double data[], hsize_t length) {
 
     // Create dataspace
     int rank = 1;

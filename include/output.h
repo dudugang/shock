@@ -19,11 +19,10 @@ class Output {
         Output(Inputs, Flowfield&);
         void add_time(double);
         void print(Flowfield, int);
-        void final_print(Flowfield);
         void write(Flowfield, int);
-        void write_results(string, unordered_map<int, Cell*>&, int);
-        void write_dataset(H5File, string, int[], int);
-        void write_dataset(H5File, string, double[], int);
+        void write_results(string, unordered_map<int, Cell*>&, unsigned int);
+        void write_dataset(H5File, string, int[], hsize_t);
+        void write_dataset(H5File, string, double[], hsize_t);
 
     private:
         vector<double> times;

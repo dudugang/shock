@@ -9,7 +9,7 @@ using std::endl;
 
 // This is the main, the highest level of the code. This function glues together
 // the rest of the code, without getting into implementation details.
-int main(int argc, char* argv[]) {
+int main() {
 
     // Get inputs
     Inputs inputs;
@@ -53,6 +53,5 @@ int main(int argc, char* argv[]) {
 
     // Output results
     //output.write_results(inputs.case_file, flow.cells, flow.n_cells);
-    //output.final_print(flow);
     return 0;
 }

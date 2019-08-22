@@ -154,7 +154,7 @@ void MeshReader::find_cell_neighbors() {
     });
 
     // Loop through all volumes
-    for (int current_index = 0; current_index < volumes.size(); current_index++) {
+    for (size_t current_index = 0; current_index < volumes.size(); current_index++) {
 
         // Convenient point to current volume
         Volume *current = volumes[current_index];
@@ -163,19 +163,23 @@ void MeshReader::find_cell_neighbors() {
         // However, since cells are sorted by one of their face's centers,
         // looking for cells near the same index is most likely to find the
         // match. This should save lots of time.
-        for (int j = 1; j < volumes.size(); j++) {
+        for (size_t j = 1; j < volumes.size(); j++) {
 
             // Convert j to id of candidate cell, to be determined if this is a
             // neighbor
-            int candidate_index;
+            size_t candidate_index;
             if (j % 2 != 0) {
                 candidate_index = current_index + (j + 1)/2;
             } else {
-                candidate_index = current_index - j/2;
+                // If candidate index is about to go negative, skip this
+                // iteration.
+                if (current_index < j/2) {
+                    continue;
+                } else {
+                    candidate_index = current_index - j/2;
+                }
             }
 
-            // If candidate index is negative, skip this iteration
-            if (candidate_index < 0) { continue; }
             // If candidate index is the same as the current cell index, skip
             // this iteration
             if (candidate_index == current_index) { continue; }
@@ -277,7 +281,7 @@ void MeshReader::combine_duplicate_faces() {
         Volume* volume = pair.second;
 
         // Loop over all faces of volume
-        for (int i = 0; i < volume->faces.size(); i++) {
+        for (size_t i = 0; i < volume->faces.size(); i++) {
 
             // Pointer to this face
             Face* face = volume->faces[i];
@@ -301,7 +305,7 @@ void MeshReader::combine_duplicate_faces() {
             if (adjacent->type != "flow") { continue; }
 
             // Loop over faces of adjacent cell
-            for (int j = 0; j < adjacent->faces.size(); j++) {
+            for (size_t j = 0; j < adjacent->faces.size(); j++) {
                 // If face from original cell matches this adjacent face
                 if (*face == *(adjacent->faces[j])) {
                     // Delete original face
