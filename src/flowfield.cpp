@@ -154,10 +154,10 @@ void Flowfield::apply_time_integrator() {
 
         }
 
-        // Update time
-        time = time + inputs.dt;
-
     }
+
+    // Update time
+    time += inputs.dt;
 
     // Update ghost cells to new time
     update_ghosts();
