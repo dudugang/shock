@@ -27,9 +27,6 @@ int main() {
     // Initialize output
     Output output(inputs, flow);
 
-    // Write initial conditions to file
-    output.write(flow, 0);
-
     // Main loop: run flux function and time integrator for every iteration
     for (int i = 1; i <= inputs.n_iterations; i++) {
 

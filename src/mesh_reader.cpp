@@ -112,7 +112,7 @@ void MeshReader::create_mesh(Inputs &inputs) {
             // Create ghost cell, add to map, and save boundary condition name
             ghosts[ghost_id] = new Ghost(nodes, q, boundary_faces, ghost_id);
             volumes[ghost_id] = ghosts[ghost_id];
-            ghosts[ghost_id]->type = name;
+            ghosts[ghost_id]->bc = name;
 
             ghost_id++;
 

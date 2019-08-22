@@ -20,4 +20,5 @@ class Ghost : public Volume {
         void update_inflow(Inputs&);
         void update_outflow(unordered_map<int, Cell*>&);
         void update_wall(unordered_map<int, Cell*>&, double);
+        string bc;
 };

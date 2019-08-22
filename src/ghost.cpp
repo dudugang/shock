@@ -15,7 +15,7 @@ Ghost::Ghost(vector<Point> vertices, vector<double> q, vector<Face*> faces,
 // Update ghost cell according to its boundary condition type
 void Ghost::update(Inputs &inputs, unordered_map<int, Cell*> &cells) {
 
-    BC boundary_condition = inputs.bc[type];
+    BC boundary_condition = inputs.bc[bc];
     switch(boundary_condition) {
         case BC::inflow:
             update_inflow(inputs);

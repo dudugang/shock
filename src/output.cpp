@@ -83,7 +83,7 @@ void Output::write(Flowfield flow, int i) {
         solution_file.open("solution.dat", std::ios_base::app);
 
         // Write header information
-        solution_file << "ZONE T=\"Iteration " << i+1 << "\", DATAPACKING=BLOCK, NODES="
+        solution_file << "ZONE T=\"Iteration " << i << "\", DATAPACKING=BLOCK, NODES="
             << flow.n_nodes << ", ELEMENTS=" << flow.n_cells
             << ", ZONETYPE=FEQUADRILATERAL, VARLOCATION=([3]=CellCentered), "
             << "VARSHARELIST=([1-2]=1), CONNECTIVITYSHAREZONE=1, "
