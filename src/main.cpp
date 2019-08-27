@@ -4,6 +4,7 @@
 #include <inputs.h>
 #include <mesh_reader.h>
 #include <output.h>
+#include <time_integrator.h>
 using std::cout;
 using std::endl;
 
@@ -23,6 +24,9 @@ int main() {
 
     // Initialize fluxes
     Flux flux;
+
+    // Initialize time integrator
+    TimeIntegrator::initialize();
 
     // Initialize output
     Output output(inputs, flow);

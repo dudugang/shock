@@ -1,4 +1,5 @@
 #include <flowfield.h>
+#include <time_integrator.h>
 
 
 // Constructor
@@ -125,34 +126,10 @@ void Flowfield::apply_time_integrator() {
     for (auto &pair : cells) {
 
         // Define convenient pointer
-        int id = pair.first;
         Cell* cell = pair.second;
 
-        // Coefficient in front of flux integral
-        double coefficient = -(inputs.dt/cell->volume);
-
-        // Apply to every equation
-        vector<double> flux_integral;
-        flux_integral.resize(4);
-        for (int i = 0; i < inputs.n_equations; i++) {
-
-            // Integrate flux over every cell face
-            for (auto &face : cell->faces) {
-
-                // If normal vector of face points away from cell, then flux is
-                // positive
-                if (id == face->neighbors[0]) {
-                    flux_integral[i] += face->flux[i] * face->area;
-                } else {
-                    flux_integral[i] -= face->flux[i] * face->area;
-                }
-
-            }
-
-            // Integrate in time
-            cell->q[i] += coefficient * flux_integral[i];
-
-        }
+        // Apply time integrator
+        TimeIntegrator::forward_euler(cell, inputs.dt);
 
     }
 
@@ -160,16 +137,10 @@ void Flowfield::apply_time_integrator() {
     time += inputs.dt;
 
     // Update ghost cells to new time
-    update_ghosts();
-
-}
-
-
-// Update ghost cells according to flowfield cells and inputs
-void Flowfield::update_ghosts() {
     for (auto &pair : ghosts) {
         // pair contains the ghost ID in pair.first and a pointer to the ghost
         // in pair.second
         pair.second->update(inputs, cells);
     }
+
 }

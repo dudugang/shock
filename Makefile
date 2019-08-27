@@ -17,12 +17,12 @@ src = $(wildcard $(src_dir)/*.cpp)
 obj = $(src:$(src_dir)/%.cpp=$(obj_dir)/%.o)
 test_obj = $(test_src:$(test_src_dir)/%.cpp=$(test_obj_dir)/%.o)
 # Paths to includes
-include_paths = include lib/googletest/googletest/include lib/hdf5/hdf5/include lib/hdf5/hdf5/lib
+include_paths = include lib/googletest/googletest/include lib/hdf5/include lib/hdf5/lib
 # Compiler flags
 warnings = -Wall -Wextra
 flags = $(foreach dir, $(include_paths), -I$(dir)) -std=c++11 -g $(warnings)
 # Libraries and locations
-ldlibs = -Llib/googletest/lib -Llib/hdf5/hdf5/lib -lgtest -lgtest_main -lpthread -lhdf5 -lhdf5_cpp -Wl,-rpath=lib/hdf5/hdf5/lib
+ldlibs = -Llib/googletest/lib -Llib/hdf5/lib -lgtest -lgtest_main -lpthread -lhdf5 -lhdf5_cpp -Wl,-rpath=lib/hdf5/lib
 # Useful variables
 empty =
 test_suffix = _test
