@@ -13,16 +13,13 @@ using std::vector;
 
 // Function for creating test data that is used multiple times
 void create_ghost(vector<double> q_neighbor, Ghost* &ghost,
-    unordered_map<int, Cell*> &cells) {
+    unordered_map<int, Cell*> &cells, Point a, Point b, double theta) {
 
     // Create face and place in vector of faces
-    Point a(0, 0);
-    Point b(1, 0);
     Face* face = new Face(a, b);
     vector<Face*> faces = {face};
 
     // Set angle of face
-    double theta = Geometry::pi / 2;
     face->sintheta = std::sin(theta);
     face->costheta = std::cos(theta);
 
@@ -53,7 +50,10 @@ TEST(update_wall_test, ShouldDoNothingForTangentialFlow) {
     vector<double> q_neighbor = {1, 1, 0, 1e5};
     Ghost* ghost;
     unordered_map<int, Cell*> cells;
-    create_ghost(q_neighbor, ghost, cells);
+    Point a(0, 0);
+    Point b(1, 0);
+    double theta = Geometry::pi / 2;
+    create_ghost(q_neighbor, ghost, cells, a, b, theta);
 
     // Need gamma for this BC
     double gamma = 1.4;
@@ -66,10 +66,11 @@ TEST(update_wall_test, ShouldDoNothingForTangentialFlow) {
     // Test
     double error = 1e-8;
     for (size_t i = 0; i < ghost_q.size(); i++) {
-        ASSERT_NEAR(ghost_q_correct[i], ghost_q[i], error);
+        ASSERT_NEAR(ghost_q_correct[i], ghost_q[i], error) << "Index: " << i;
     }
 
 }
+
 
 TEST(update_wall_test, ShouldFlipSignForNormalFlow) {
 
@@ -77,7 +78,10 @@ TEST(update_wall_test, ShouldFlipSignForNormalFlow) {
     vector<double> q_neighbor = {1, 0, 1, 1e5};
     Ghost* ghost;
     unordered_map<int, Cell*> cells;
-    create_ghost(q_neighbor, ghost, cells);
+    Point a(0, 0);
+    Point b(1, 0);
+    double theta = Geometry::pi / 2;
+    create_ghost(q_neighbor, ghost, cells, a, b, theta);
 
     // Need gamma for this BC
     double gamma = 1.4;
@@ -90,7 +94,35 @@ TEST(update_wall_test, ShouldFlipSignForNormalFlow) {
     // Test
     double error = 1e-8;
     for (size_t i = 0; i < ghost_q.size(); i++) {
-        ASSERT_NEAR(ghost_q_correct[i], ghost_q[i], error);
+        ASSERT_NEAR(ghost_q_correct[i], ghost_q[i], error) << "Index: " << i;
+    }
+
+}
+
+
+TEST(update_wall_test, ShouldDoNothingForTangentialFlowAt45Degrees) {
+
+    // Create ghost object
+    vector<double> q_neighbor = {1, 1, 1, 1e5};
+    Ghost* ghost;
+    unordered_map<int, Cell*> cells;
+    Point a(0, 0);
+    Point b(1, 1);
+    double theta = 7 * Geometry::pi / 4;
+    create_ghost(q_neighbor, ghost, cells, a, b, theta);
+
+    // Need gamma for this BC
+    double gamma = 1.4;
+
+    // Apply boundary condition
+    ghost->update_wall(cells, gamma);
+    vector<double> ghost_q = ghost->q;
+    vector<double> ghost_q_correct = {1, 1, 1, 1e5};
+
+    // Test
+    double error = 1e-8;
+    for (size_t i = 0; i < ghost_q.size(); i++) {
+        ASSERT_NEAR(ghost_q_correct[i], ghost_q[i], error) << "Index: " << i;
     }
 
 }

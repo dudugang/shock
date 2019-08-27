@@ -1,5 +1,6 @@
 #include <output.h>
 #include <cell.h>
+#include <state.h>
 
 
 // Constructor
@@ -12,10 +13,10 @@ Output::Output(Inputs inputs, Flowfield &flow) {
     ofstream solution_file;
     solution_file.open("solution.dat", std::ios_base::app);
     solution_file << "TITLE = \"Shock CFD Simulation\"" << endl;
-    solution_file << "VARIABLES = \"x\", \"y\", \"Pressure\"" << endl;
+    solution_file << "VARIABLES = \"x\", \"y\", \"rho\", \"u\", \"v\", \"p\"" << endl;
     solution_file << "ZONE T=\"Iteration 0\", DATAPACKING=BLOCK, NODES="
         << flow.n_nodes << ", ELEMENTS=" << flow.n_cells
-        << ", ZONETYPE=FEQUADRILATERAL, VARLOCATION=([3]=CellCentered)" << endl;
+        << ", ZONETYPE=FEQUADRILATERAL, VARLOCATION=([3-6]=CellCentered)" << endl;
 
     // Write x position
     for (size_t i = 1; i <= flow.vertices.size(); i++) {
@@ -27,17 +28,16 @@ Output::Output(Inputs inputs, Flowfield &flow) {
         solution_file << flow.vertices[i].y << endl;
     }
     solution_file << endl;
-    // Write pressure
-    double p;
-    for (size_t i = 1; i <= flow.cells.size(); i++) {
-        double rho = flow.cells[i]->q[0];
-        double u = flow.cells[i]->q[1] / rho;
-        double v = flow.cells[i]->q[2] / rho;
-        p = (inputs.gamma-1) * (flow.cells[i]->q[3]
-          - .5*rho*(u*u + v*v));
-        solution_file << p << endl;
+    // Write flow solution
+    // TODO: Make this more efficient (does unused math)
+    for (int n = 0; n < inputs.n_equations; n++) {
+        for (size_t i = 1; i <= flow.cells.size(); i++) {
+            vector<double> physical
+                = State::conserved_to_physical(flow.cells[i]->q, inputs.gamma);
+            solution_file << physical[n] << endl;
+        }
+        solution_file << endl;
     }
-    solution_file << endl;
 
     // Write connectivity information
     for (int cell = 0; cell < flow.n_cells; cell++) {
@@ -65,7 +65,7 @@ void Output::add_time(double time) {
 // Output information after iterations
 void Output::print(Flowfield flow, int i) {
 
-    Cell *cell = flow.cells[5];
+    Cell *cell = flow.cells[flow.inputs.print_id];
     cout << "Iteration " << i << ": " << cell->q[0] << "  " << cell->q[1]
          << "  " << cell->q[2] << "  " << cell->q[3] << endl;
 
@@ -85,19 +85,19 @@ void Output::write(Flowfield flow, int i) {
         // Write header information
         solution_file << "ZONE T=\"Iteration " << i << "\", DATAPACKING=BLOCK, NODES="
             << flow.n_nodes << ", ELEMENTS=" << flow.n_cells
-            << ", ZONETYPE=FEQUADRILATERAL, VARLOCATION=([3]=CellCentered), "
+            << ", ZONETYPE=FEQUADRILATERAL, VARLOCATION=([3-6]=CellCentered), "
             << "VARSHARELIST=([1-2]=1), CONNECTIVITYSHAREZONE=1, "
             << "SOLUTIONTIME=" << flow.time << endl;
 
-        // Write pressure
-        double p;
-        for (size_t i = 1; i <= flow.cells.size(); i++) {
-            double rho = flow.cells[i]->q[0];
-            double u = flow.cells[i]->q[1] / rho;
-            double v = flow.cells[i]->q[2] / rho;
-            p = (flow.inputs.gamma-1) * (flow.cells[i]->q[3]
-              - .5*rho*(u*u + v*v));
-            solution_file << p << endl;
+        // Write flow solution
+        // TODO: Make this more efficient (does unused math)
+        for (int n = 0; n < flow.inputs.n_equations; n++) {
+            for (size_t i = 1; i <= flow.cells.size(); i++) {
+                vector<double> physical
+                    = State::conserved_to_physical(flow.cells[i]->q, flow.inputs.gamma);
+                solution_file << physical[n] << endl;
+            }
+            solution_file << endl;
         }
         solution_file << endl << endl;
 

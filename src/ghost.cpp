@@ -86,8 +86,30 @@ void Ghost::update_wall(unordered_map<int, Cell*> &cells, double gamma) {
     double &costheta = faces[0]->costheta;
     double &q1 = neighbor->q[1];
     double &q2 = neighbor->q[2];
-    q[1] = 2*q2*costheta*sintheta + q1*(sintheta*sintheta - costheta*costheta);
-    q[2] = q[1]*costheta/sintheta + q1*costheta/sintheta - q2;
+    //q[1] = 2*q2*costheta*sintheta + q1*(sintheta*sintheta - costheta*costheta);
+    // Check for division by zero
+    double tantheta;
+    double cottheta;
+    if (sintheta == 0) {
+        q[1] = -rho * u;
+        q[2] =  rho * v;
+    } else if (costheta == 0) {
+        q[1] =  rho * u;
+        q[2] = -rho * v;
+    } else {
+        tantheta = sintheta / costheta;
+        cottheta = costheta / sintheta;
+        q[1] = rho * (u*tantheta - u*cottheta - 2*v) / (tantheta + cottheta);
+        q[2] = rho * ((q[1]/rho)*tantheta - u*tantheta + v);
+    }
+    /*
+    // Check for division by zero
+    if (sintheta != 0) {
+        q[2] = q[1]*costheta/sintheta + q1*costheta/sintheta - q2;
+    } else {
+        q[2] = q2;
+    }
+    */
 
     // Keep pressure the same as its neighbor
     q[3] = p/(gamma-1) + .5*rho*((q[1]*q[1])/(rho*rho) + (q[2]*q[2])/(rho*rho));

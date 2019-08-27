@@ -5,24 +5,30 @@
 Inputs::Inputs() {
 
     // Parameters
-    dt = .000005;
-    n_iterations = 2;
+    dt = .00001;
+    n_iterations = 2000;
     n_equations = 4;
-    output_rate = 1;
-    case_file = "shock_tube.cgns";
+    output_rate = 20;
+    case_file = "box.cgns";
 
     // Fluid properties
     gamma = 1.4;
 
+    // Debug
+    print_id = 1;
+
     // Boundary conditions
+    bc["inlet"]   = BC::inflow;
+    bc["outflow"] = BC::outflow;
     bc["in"]   = BC::inflow;
     bc["out"]  = BC::outflow;
     bc["sym"]  = BC::wall;
     bc["wall"] = BC::wall;
 
     // Volume conditions
+    vc["interior"] = {1, 0, 0, 1e5};
     vc["driver"] = {1, 0, 0, 1e5};
-    vc["driven"] = {1, 0, 0, 1e4};
+    vc["driven"] = {1, 0, 0, 1e5};
 
     // Inflow conditions
     rho = 1;

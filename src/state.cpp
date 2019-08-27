@@ -16,3 +16,20 @@ vector<double> State::physical_to_conserved(vector<double> physical, double gamm
     return conserved;
 
 }
+
+
+// Takes a vector of conserved variables and converts them to a vector of
+// physical variables.
+vector<double> State::conserved_to_physical(vector<double> conserved, double gamma) {
+
+    vector<double> physical = {
+        conserved[0],
+        conserved[1] / conserved[0],
+        conserved[2] / conserved[0],
+       (conserved[3] - .5*(conserved[1]*conserved[1]
+            + conserved[2]*conserved[2])/conserved[0]) * (gamma-1)
+    };
+
+    return physical;
+
+}
