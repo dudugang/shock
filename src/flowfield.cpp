@@ -120,18 +120,10 @@ void Flowfield::apply_reconstruction() {
 
 
 // Integrate semi-discrete equations in time
-void Flowfield::apply_time_integrator(TimeIntegrator* time_integrator) {
+void Flowfield::iterate(TimeIntegrator* time_integrator, Flux& flux) {
 
-    // Loop over every pair of cell IDs and cells
-    for (auto &pair : cells) {
-
-        // Define convenient pointer
-        Cell* cell = pair.second;
-
-        // Apply time integrator
-        time_integrator->integrate(cell, inputs.dt);
-
-    }
+    // Integrate in time
+    time_integrator->integrate(*this, cells, flux, inputs.dt);
 
     // Update time
     time += inputs.dt;

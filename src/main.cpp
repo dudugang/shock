@@ -34,14 +34,8 @@ int main() {
     // Main loop: run flux function and time integrator for every iteration
     for (int i = 1; i <= inputs.n_iterations; i++) {
 
-        // Reconstruct flowfield
-        flow.apply_reconstruction();
-
-        // Calculate fluxes
-        flow.calculate_flux(flux);
-
-        // Integrate in time
-        flow.apply_time_integrator(time_integrator);
+        // Run one iteration
+        flow.iterate(time_integrator, flux);
 
         // Write to file
         output.write(flow, i);

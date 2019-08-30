@@ -10,10 +10,13 @@
 #include <ghost.h>
 #include <inputs.h>
 #include <mesh_reader.h>
-#include <time_integrator.h>
 using std::vector;
 using std::unordered_map;
 using std::unordered_set;
+
+
+// Forward declare
+class TimeIntegrator;
 
 // Class for storing all cells in the flowfield and for performing high-level
 // functions on flowfield cells.
@@ -22,7 +25,7 @@ class Flowfield {
         Flowfield(Inputs, MeshReader);
         void calculate_flux(Flux&);
         void apply_reconstruction();
-        void apply_time_integrator(TimeIntegrator*);
+        void iterate(TimeIntegrator*, Flux&);
         Inputs inputs;
         unordered_map<int, Point> vertices;
         vector<int> connectivity;
