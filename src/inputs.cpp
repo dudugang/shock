@@ -5,11 +5,11 @@
 Inputs::Inputs() {
 
     // Parameters
-    dt = .00001;
+    dt = 1e-9;
     n_iterations = 2000;
     n_equations = 4;
     output_rate = 20;
-    case_file = "box.cgns";
+    case_file = "wedge_test.cgns";
 
     // Fluid properties
     gamma = 1.4;
