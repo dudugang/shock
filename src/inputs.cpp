@@ -14,6 +14,9 @@ Inputs::Inputs() {
     // Fluid properties
     gamma = 1.4;
 
+    // Time integrator
+    time_integrator = "ForwardEuler";
+
     // Debug
     print_id = 1;
 

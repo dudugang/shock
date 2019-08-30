@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <inputs.h>
 using std::vector;
 
 
@@ -11,10 +12,10 @@ class Cell;
 class TimeIntegrator {
 
     public:
-        static void initialize();
-        static void forward_euler(Cell*, double);
+        static TimeIntegrator* choose_time_integrator(Inputs);
+        virtual void integrate(Cell*, double) = 0;
 
-    private:
-        static vector<double> flux_integral;
+    protected:
+        vector<double> flux_integral;
 
 };

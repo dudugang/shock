@@ -26,7 +26,7 @@ int main() {
     Flux flux;
 
     // Initialize time integrator
-    TimeIntegrator::initialize();
+    TimeIntegrator* time_integrator = TimeIntegrator::choose_time_integrator(inputs);
 
     // Initialize output
     Output output(inputs, flow);
@@ -41,7 +41,7 @@ int main() {
         flow.calculate_flux(flux);
 
         // Integrate in time
-        flow.apply_time_integrator();
+        flow.apply_time_integrator(time_integrator);
 
         // Write to file
         output.write(flow, i);

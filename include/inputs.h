@@ -21,6 +21,7 @@ class Inputs {
         int output_rate;
         string case_file;
         double gamma;
+        string time_integrator;
         int print_id;
         unordered_map<string, BC> bc;
         unordered_map<string, vector<double> > vc;
