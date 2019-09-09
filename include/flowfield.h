@@ -31,6 +31,7 @@ class Flowfield {
         vector<int> connectivity;
         unordered_map<int, Cell*> cells;
         unordered_map<int, Ghost*> ghosts;
+        unordered_map<int, Volume*> volumes;
         unordered_set<Face*> faces;
         int n_cells;
         int n_nodes;

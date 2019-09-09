@@ -18,6 +18,7 @@ Flowfield::Flowfield(Inputs inputs, MeshReader mesh_reader) {
     connectivity = mesh_reader.connectivity;
     cells        = mesh_reader.cells;
     ghosts       = mesh_reader.ghosts;
+    volumes      = mesh_reader.volumes;
     faces        = mesh_reader.faces;
 
     // Calculate face normal vectors
@@ -101,18 +102,13 @@ void Flowfield::apply_reconstruction() {
         // Reference to neighbor cell ID's, in increasing order
         int &smaller_id = face->neighbors[0];
         int &larger_id  = face->neighbors[1];
+        cout << "Face neighbors:" << endl;
+        cout << smaller_id << endl;
+        cout << larger_id << endl;
 
-        // Check if id is for a Ghost or for a Cell, then update accordingly
-        if (smaller_id > n_cells) {
-            face->q_left  = ghosts[smaller_id]->q;
-        } else {
-            face->q_left = cells[smaller_id]->q;
-        }
-        if (larger_id > n_cells) {
-            face->q_right  = ghosts[larger_id]->q;
-        } else {
-            face->q_right = cells[larger_id]->q;
-        }
+        // Update q on left and right of cell by setting
+        face->q_left  = volumes[smaller_id]->q;
+        face->q_right = volumes[larger_id]->q;
 
     }
 

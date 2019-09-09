@@ -93,7 +93,8 @@ void Ghost::update_wall(unordered_map<int, Cell*> &cells, double gamma) {
     if (sintheta == 0) {
         q[1] = -rho * u;
         q[2] =  rho * v;
-    } else if (costheta == 0) {
+    // TODO: Maybe get rid of this?
+    } else if (std::abs(costheta) < 1e-14) {
         q[1] =  rho * u;
         q[2] = -rho * v;
     } else {

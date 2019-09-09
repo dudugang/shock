@@ -5,11 +5,11 @@
 Inputs::Inputs() {
 
     // Parameters
-    dt = 1e-9;
-    n_iterations = 2000;
+    dt = 1e-4;
+    n_iterations = 1;
     n_equations = 4;
     output_rate = 20;
-    case_file = "wedge_test.cgns";
+    case_file = "pipe.cgns";
 
     // Fluid properties
     gamma = 1.4;
@@ -23,6 +23,7 @@ Inputs::Inputs() {
     // Boundary conditions
     bc["inlet"]   = BC::inflow;
     bc["outflow"] = BC::outflow;
+    bc["outlet"] = BC::outflow;
     bc["in"]   = BC::inflow;
     bc["out"]  = BC::outflow;
     bc["sym"]  = BC::wall;
@@ -35,7 +36,7 @@ Inputs::Inputs() {
 
     // Inflow conditions
     rho = 1;
-    u = 1200;
+    u = 1000;
     v = 0;
     p = 1e5;
 
