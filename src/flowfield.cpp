@@ -26,6 +26,13 @@ Flowfield::Flowfield(Inputs inputs, MeshReader mesh_reader) {
         face->find_normal_vector(cells, ghosts, n_cells);
     }
 
+    // Initialize ghost cell values according to boundary conditions
+    for (auto &pair : ghosts) {
+        // pair contains the ghost ID in pair.first and a pointer to the ghost
+        // in pair.second
+        pair.second->update(inputs, cells);
+    }
+
     // Start from time 0
     time = 0;
 
@@ -70,8 +77,33 @@ void Flowfield::calculate_flux(Flux &flux) {
             + face->costheta * q_right[2];
         q_right_rotated[3] = q_right[3];
 
+        /*
+        cout << "Face at: " << face->center.x << " " << face->center.y << endl;
+        cout << "Left:" << endl;
+        for (auto num : face->q_left) {
+            cout << num << " ";
+        }
+        cout << endl;
+        cout << "Right:" << endl;
+        for (auto num : face->q_right) {
+            cout << num << " ";
+        }
+        cout << endl;
+        cout << "Left, rotated:" << endl;
+        for (auto num : q_left_rotated) {
+            cout << num << " ";
+        }
+        cout << endl;
+        cout << "Right, rotated:" << endl;
+        for (auto num : q_right_rotated) {
+            cout << num << " ";
+        }
+        cout << endl;
+        */
+
         // Get face flux using rotated left and right states. This returns the
         // rotated flux.
+        //cout << "Face flux at: " << face->center.x << " " << face->center.y << endl;
         flux_rotated = flux.steger_warming(q_left_rotated, q_right_rotated,
             inputs.gamma);
 
@@ -102,9 +134,6 @@ void Flowfield::apply_reconstruction() {
         // Reference to neighbor cell ID's, in increasing order
         int &smaller_id = face->neighbors[0];
         int &larger_id  = face->neighbors[1];
-        cout << "Face neighbors:" << endl;
-        cout << smaller_id << endl;
-        cout << larger_id << endl;
 
         // Update q on left and right of cell by setting
         face->q_left  = volumes[smaller_id]->q;

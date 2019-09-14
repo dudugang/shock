@@ -43,7 +43,6 @@ void Face::find_normal_vector(unordered_map<int, Cell*> &cells,
     if (id <= n_cells) {
         cell_center = cells[id]->center;
     } else {
-    cout << "CHECK: id = " << id << endl;
         cell_center = ghosts[id]->center;
     }
 

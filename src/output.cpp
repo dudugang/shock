@@ -69,6 +69,7 @@ void Output::print(Flowfield flow, int i) {
     cout << "Iteration " << i << ": " << cell->q[0] << "  " << cell->q[1]
          << "  " << cell->q[2] << "  " << cell->q[3] << endl;
 
+    /*
     // Debug: print out ghosts
     for (int j = 2; j <= 5; j++) {
         Ghost *ghost = flow.ghosts[j];
@@ -80,6 +81,7 @@ void Output::print(Flowfield flow, int i) {
         cout << ghost->faces[0]->flux[3] << endl;
     }
     cout << endl;
+    */
 
 }
 

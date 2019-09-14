@@ -32,6 +32,9 @@ void ForwardEuler::integrate(Flowfield &flow, unordered_map<int, Cell*> &cells, 
         // Apply to every equation
         for (int i = 0; i < 4; i++) {
 
+            // Start flux integral at zero
+            flux_integral = {0, 0, 0, 0};
+
             // Integrate flux over every cell face
             for (auto &face : cell->faces) {
 
